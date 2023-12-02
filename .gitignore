@@ -1,0 +1,10 @@
+# IDF 组件管理器
+/managed_components/
+/dependencies.lock
+
+# 编译中间文件
+/build/
+/cmake-build-debug/
+
+# CLion
+/.idea/
