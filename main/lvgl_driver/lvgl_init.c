@@ -30,8 +30,8 @@ void lv_disp_init() {
   lv_disp_draw_buf_init(&disp_buf, buf1, buf2, size_in_px);
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
-  disp_drv.hor_res = CONFIG_LV_HOR_RES_MAX;
-  disp_drv.ver_res = CONFIG_LV_VER_RES_MAX;
+  disp_drv.hor_res = LV_HOR_RES_MAX;
+  disp_drv.ver_res = LV_VER_RES_MAX;
   disp_drv.flush_cb = disp_driver_flush;
   disp_drv.draw_buf = &disp_buf;
   lv_disp_drv_register(&disp_drv);

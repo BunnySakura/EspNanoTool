@@ -5,6 +5,11 @@
  * SPDX-License-Identifier: CC0-1.0
  */
 
+#include "lvgl.h"
+#include "lvgl_helpers.h"
+#include "lv_port_indev.h"
+#include "lvgl_init.h"
+
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_chip_info.h"
@@ -13,10 +18,6 @@
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "lvgl.h"
-
-#include "lv_port_indev.h"
-#include "lvgl_init.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -208,8 +209,47 @@ void lv_example(void) {
   lv_group_focus_obj(btn1); // 分组聚焦到对象
 }
 
-_Noreturn void app_main(void) {
+/**
+ * A simple row and a column layout with flexbox
+ */
+void lv_example_flex_1(void) {
+  lv_group_t *group = lv_group_create();
+  lv_group_set_default(group);
+  lv_indev_set_group(indev_keypad, group);
 
+  static lv_style_t style;
+  lv_style_init(&style);
+  lv_style_set_flex_flow(&style, LV_FLEX_FLOW_ROW_WRAP);
+  lv_style_set_flex_main_place(&style, LV_FLEX_ALIGN_SPACE_EVENLY);
+  lv_style_set_layout(&style, LV_LAYOUT_FLEX);
+
+  lv_obj_t *cont = lv_obj_create(lv_scr_act());
+  lv_obj_set_size(cont, LV_HOR_RES_MAX, LV_VER_RES_MAX);
+  lv_obj_center(cont);
+  lv_obj_add_style(cont, &style, 0);
+
+  uint32_t i;
+  for (i = 0; i < 10; i++) {
+    lv_obj_t *obj;
+    lv_obj_t *label;
+
+    /*Add items to the row*/
+    obj = lv_btn_create(cont);
+    lv_obj_set_size(obj, 50, 50);
+    lv_obj_center(obj);
+
+    label = lv_label_create(obj);
+    lv_label_set_text_fmt(label, "Item: %"LV_PRIu32, i);
+    lv_obj_center(label);
+
+    lv_obj_add_event_cb(obj, btn_event_handler, LV_EVENT_ALL, NULL);
+    lv_group_add_obj(group, obj);
+  }
+
+  lv_group_focus_obj(cont); // 分组聚焦到对象
+}
+
+_Noreturn void app_main(void) {
   xTaskCreate(PrintChipInfo, "PrintChipInfo", 1024 * 2, NULL, 1, NULL);
   // xTaskCreate(BlinkLed, "BlinkLed", 1024 * 2, NULL, 1, NULL);
 
@@ -234,31 +274,8 @@ _Noreturn void app_main(void) {
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
   }
 
-  lv_example();
-
-  // // 创建按钮对象
-  // lv_obj_t *button1 = lv_btn_create(lv_scr_act());
-  // lv_obj_t *button2 = lv_btn_create(lv_scr_act());
-  //
-  // // 设置按钮位置和大小
-  // lv_obj_align(button1, LV_ALIGN_TOP_LEFT, 0, 0);
-  // lv_obj_align(button2, LV_ALIGN_TOP_RIGHT, 0, 0);
-  // lv_obj_add_flag(button2, LV_OBJ_FLAG_CHECKABLE);
-  //
-  // label = lv_label_create(button1);
-  // lv_label_set_text(label, "Button");
-  // lv_obj_center(label);
-  // label = lv_label_create(button2);
-  // lv_label_set_text(label, "Toggle");
-  // lv_obj_center(label);
-  //
-  // lv_group_t *group = lv_group_create();
-  // lv_group_add_obj(group, button1);
-  // lv_group_add_obj(group, button2);
-  // lv_group_set_default(group);
-  // lv_indev_set_group(indev_keypad, group);
-  // lv_group_focus_obj(group);
-  // lv_group_set_editing(group, true);
+  // lv_example();
+  lv_example_flex_1();
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(10));
