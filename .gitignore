@@ -2,9 +2,13 @@
 /managed_components/
 /dependencies.lock
 
+# IDF sdkconfig
+/sdkconfig
+
 # 编译中间文件
 /build/
 /cmake-build-debug/
 
 # CLion
 /.idea/
+

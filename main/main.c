@@ -209,44 +209,53 @@ void lv_example(void) {
   lv_group_focus_obj(btn1); // 分组聚焦到对象
 }
 
-/**
- * A simple row and a column layout with flexbox
- */
-void lv_example_flex_1(void) {
+void lv_example_win_1(void) {
   lv_group_t *group = lv_group_create();
   lv_group_set_default(group);
   lv_indev_set_group(indev_keypad, group);
 
-  static lv_style_t style;
-  lv_style_init(&style);
-  lv_style_set_flex_flow(&style, LV_FLEX_FLOW_ROW_WRAP);
-  lv_style_set_flex_main_place(&style, LV_FLEX_ALIGN_SPACE_EVENLY);
-  lv_style_set_layout(&style, LV_LAYOUT_FLEX);
+  lv_obj_t *win = lv_win_create(lv_scr_act(), lv_pct(20));
+  lv_obj_t *btn;
+  btn = lv_win_add_btn(win, LV_SYMBOL_LEFT, lv_pct(10));
+  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
+  lv_group_add_obj(group, btn);
+  lv_group_focus_obj(btn); // 分组聚焦到对象
 
-  lv_obj_t *cont = lv_obj_create(lv_scr_act());
-  lv_obj_set_size(cont, LV_HOR_RES_MAX, LV_VER_RES_MAX);
-  lv_obj_center(cont);
-  lv_obj_add_style(cont, &style, 0);
+  lv_obj_t *win_label = lv_win_add_title(win, "A title of this window");
+  lv_label_set_long_mode(win_label, LV_LABEL_LONG_SCROLL);
 
-  uint32_t i;
-  for (i = 0; i < 10; i++) {
-    lv_obj_t *obj;
-    lv_obj_t *label;
+  static lv_style_t style_base;
+  lv_style_init(&style_base);
+  lv_style_set_bg_opa(&style_base, LV_OPA_TRANSP); // 设置背景透明度
+  lv_style_set_text_color(&style_base, lv_color_black()); // 设置文本颜色
+  lv_style_set_shadow_opa(&style_base, LV_OPA_TRANSP); // 设置阴影透明度
+  btn = lv_win_add_btn(win, LV_SYMBOL_WIFI, lv_pct(10));
+  lv_obj_add_style(btn, &style_base, 0);
+  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
 
-    /*Add items to the row*/
-    obj = lv_btn_create(cont);
-    lv_obj_set_size(obj, 50, 50);
-    lv_obj_center(obj);
+  btn = lv_win_add_btn(win, LV_SYMBOL_RIGHT, lv_pct(10));
+  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
+  lv_group_add_obj(group, btn);
 
-    label = lv_label_create(obj);
-    lv_label_set_text_fmt(label, "Item: %"LV_PRIu32, i);
-    lv_obj_center(label);
+  btn = lv_win_add_btn(win, LV_SYMBOL_CLOSE, lv_pct(20));
+  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
+  lv_group_add_obj(group, btn);
 
-    lv_obj_add_event_cb(obj, btn_event_handler, LV_EVENT_ALL, NULL);
-    lv_group_add_obj(group, obj);
-  }
-
-  lv_group_focus_obj(cont); // 分组聚焦到对象
+  lv_obj_t *cont = lv_win_get_content(win);  /*Content can be added here*/
+  lv_obj_t *label = lv_label_create(cont);
+  lv_label_set_text(label, "This is\n"
+                           "a pretty\n"
+                           "long text\n"
+                           "to see how\n"
+                           "the window\n"
+                           "becomes\n"
+                           "scrollable.\n"
+                           "\n"
+                           "\n"
+                           "Some more\n"
+                           "text to be\n"
+                           "sure it\n"
+                           "overflows. :)");
 }
 
 _Noreturn void app_main(void) {
@@ -275,7 +284,7 @@ _Noreturn void app_main(void) {
   }
 
   // lv_example();
-  lv_example_flex_1();
+  lv_example_win_1();
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(10));
