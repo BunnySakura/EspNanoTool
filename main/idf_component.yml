@@ -20,3 +20,5 @@ dependencies:
   BunnySakura/lvgl_esp32_drivers:
     git: https://github.com/BunnySakura/lvgl_esp32_drivers.git
     version: "fork/hiruna_lvgl_8.3.7_idf_5.2"
+
+  joltwallet/littlefs: "==1.11.0"

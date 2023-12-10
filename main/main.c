@@ -10,6 +10,8 @@
 #include "lv_port_indev.h"
 #include "lvgl_init.h"
 
+#include "esp_littlefs.h"
+
 #include "driver/gpio.h"
 #include "sdkconfig.h"
 #include "esp_chip_info.h"
@@ -209,6 +211,27 @@ void lv_example(void) {
   lv_group_focus_obj(btn1); // 分组聚焦到对象
 }
 
+void lv_example_qrcode_1(void) {
+  lv_color_t bg_color = lv_palette_lighten(LV_PALETTE_LIGHT_BLUE, 5);
+  lv_color_t fg_color = lv_palette_darken(LV_PALETTE_BLUE, 4);
+
+  lv_obj_t *qr = lv_qrcode_create(
+      lv_scr_act(),
+      LV_HOR_RES_MAX > LV_VER_RES_MAX ? LV_VER_RES_MAX : LV_HOR_RES_MAX,
+      fg_color,
+      bg_color
+  );
+
+  /*Set data*/
+  const char *data = "https://lvgl.io";
+  lv_qrcode_update(qr, data, strlen(data));
+  lv_obj_center(qr);
+
+  /*Add a border with bg_color*/
+  lv_obj_set_style_border_color(qr, bg_color, 0);
+  lv_obj_set_style_border_width(qr, 5, 0);
+}
+
 void lv_example_win_1(void) {
   lv_group_t *group = lv_group_create();
   lv_group_set_default(group);
@@ -229,7 +252,8 @@ void lv_example_win_1(void) {
   lv_style_set_bg_opa(&style_base, LV_OPA_TRANSP); // 设置背景透明度
   lv_style_set_text_color(&style_base, lv_color_black()); // 设置文本颜色
   lv_style_set_shadow_opa(&style_base, LV_OPA_TRANSP); // 设置阴影透明度
-  btn = lv_win_add_btn(win, LV_SYMBOL_WIFI, lv_pct(10));
+  // btn = lv_win_add_btn(win, LV_SYMBOL_WIFI, lv_pct(10));
+  btn = lv_win_add_btn(win, LV_SYMBOL_REFRESH, lv_pct(10));
   lv_obj_add_style(btn, &style_base, 0);
   lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
 
@@ -284,7 +308,7 @@ _Noreturn void app_main(void) {
   }
 
   // lv_example();
-  lv_example_win_1();
+  lv_example_qrcode_1();
 
   while (1) {
     vTaskDelay(pdMS_TO_TICKS(10));
