@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
+# 开启调试级别日志打印
+add_definitions(-DDEBUG_PRINT)
+
 if (NOT DEFINED PROJECT_NAME)
     include($ENV{IDF_PATH}/tools/cmake/project.cmake)
     project(EspNanoTool)

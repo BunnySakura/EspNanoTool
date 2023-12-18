@@ -22,3 +22,5 @@ dependencies:
     version: "fork/hiruna_lvgl_8.3.7_idf_5.2"
 
   joltwallet/littlefs: "==1.11.0"
+
+  qrcode: "^0.1.0"

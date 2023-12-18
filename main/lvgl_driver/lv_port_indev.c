@@ -426,7 +426,7 @@ static void keypad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
 /*Get the currently being pressed key.  0 if no key is pressed*/
 static uint32_t keypad_get_key(void) {
   uint32_t io_num;
-  if (xQueueReceive(gpio_evt_queue, &io_num, pdMS_TO_TICKS(10)) && gpio_get_level(io_num) == 0) {
+  if (xQueueReceive(gpio_evt_queue, &io_num, pdMS_TO_TICKS(0))) {
     // 按键按下处于低电平视为有效
     return io_num;
   } else {
