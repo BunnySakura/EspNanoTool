@@ -74,24 +74,35 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 }
 
 void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
+  static LvQrCode *qr_code = NULL;
+  if (!qr_code) {
+    qr_code = GuiQrCode();
+  }
+
   switch (event) {
-    case ESP_SUPP_DPP_URI_READY:
+    case ESP_SUPP_DPP_URI_READY: {
       if (data != NULL) {
         esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
 
         ESP_LOGI(TAG, "Scan below QR Code to configure the enrollee:\n");
-        ShowQrCode((const char *) data); // `esp_qrcode_generate`调用会修改数据，需要先于该调用进行显示
+        qr_code->Show(qr_code, (const char *) data); /// \note `esp_qrcode_generate`调用会修改数据，需要先于该调用进行显示
         esp_qrcode_generate(&cfg, (const char *) data);
       }
       break;
-    case ESP_SUPP_DPP_CFG_RECVD:memcpy(&s_dpp_wifi_config, data, sizeof(s_dpp_wifi_config));
+    }
+
+    case ESP_SUPP_DPP_CFG_RECVD: {
+      memcpy(&s_dpp_wifi_config, data, sizeof(s_dpp_wifi_config));
       esp_wifi_set_config(ESP_IF_WIFI_STA, &s_dpp_wifi_config);
       ESP_LOGI(TAG, "DPP Authentication successful, connecting to AP : %s",
                s_dpp_wifi_config.sta.ssid);
       s_retry_num = 0;
       esp_wifi_connect();
+      qr_code->Close(qr_code);
       break;
-    case ESP_SUPP_DPP_FAIL:
+    }
+
+    case ESP_SUPP_DPP_FAIL: {
       if (s_retry_num < 5) {
         ESP_LOGI(TAG, "DPP Auth failed (Reason: %s), retry...", esp_err_to_name((int) data));
         ESP_ERROR_CHECK(esp_supp_dpp_start_listen());
@@ -100,7 +111,12 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
         xEventGroupSetBits(s_dpp_event_group, DPP_AUTH_FAIL_BIT);
       }
       break;
-    default:break;
+    }
+
+    default: {
+      lv_obj_del(lv_scr_act());
+      break;
+    }
   }
 }
 

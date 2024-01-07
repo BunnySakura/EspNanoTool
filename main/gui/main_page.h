@@ -188,6 +188,8 @@ _Noreturn void LvglMainPage() {
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
   }
 
+  lv_example_win_1();
+
   while (true) {
     vTaskDelete(NULL);
   }
