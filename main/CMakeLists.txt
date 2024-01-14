@@ -1,8 +1,11 @@
 idf_component_register(
         SRCS main.c
-        lvgl_driver/lvgl_init.c
-        lvgl_driver/lv_port_indev.c
-        gui/show_qrcode.c
+        driver/lvgl_driver/lvgl_init.c
+        driver/lvgl_driver/lv_port_indev.c
+        driver/littlefs_init.c
+        gui/gui_qrcode.c
 
-        INCLUDE_DIRS lvgl_driver/
+        INCLUDE_DIRS app/
+        driver/
+        gui/
 )

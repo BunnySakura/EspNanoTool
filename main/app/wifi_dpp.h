@@ -5,7 +5,7 @@
 #ifndef ESPNANOTOOL_MAIN_APP_WIFI_DPP_H_
 #define ESPNANOTOOL_MAIN_APP_WIFI_DPP_H_
 
-#include "../gui/show_qrcode.h"
+#include "gui_qrcode.h"
 
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -74,9 +74,9 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 }
 
 void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
-  static LvQrCode *qr_code = NULL;
+  static GuiQrCode *qr_code = NULL;
   if (!qr_code) {
-    qr_code = GuiQrCode();
+    qr_code = GuiQrCodeInit();
   }
 
   switch (event) {
@@ -85,7 +85,7 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
         esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
 
         ESP_LOGI(TAG, "Scan below QR Code to configure the enrollee:\n");
-        qr_code->Show(qr_code, (const char *) data); /// \note `esp_qrcode_generate`调用会修改数据，需要先于该调用进行显示
+        GuiQrCodeShow(qr_code, (const char *) data); /// \note `esp_qrcode_generate`调用会修改数据，需要先于该调用进行显示
         esp_qrcode_generate(&cfg, (const char *) data);
       }
       break;
@@ -98,7 +98,7 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
                s_dpp_wifi_config.sta.ssid);
       s_retry_num = 0;
       esp_wifi_connect();
-      qr_code->Close(qr_code);
+      GuiQrCodeClose(qr_code);
       break;
     }
 

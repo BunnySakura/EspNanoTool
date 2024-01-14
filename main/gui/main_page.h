@@ -8,8 +8,8 @@
 
 #include "lvgl.h"
 #include "lvgl_helpers.h"
-#include "lv_port_indev.h"
-#include "lvgl_init.h"
+#include "lvgl_driver/lv_port_indev.h"
+#include "lvgl_driver/lvgl_init.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -45,153 +45,85 @@ static void btn_event_handler(lv_event_t *e)//按键回调函数
   }
 }
 
-static void tmp_event_handler(lv_event_t *e)//滑块回调函数
-{
-  lv_obj_t *obj = lv_event_get_target(e);
-  uint32_t key = lv_event_get_key(e);
-  static int i = 0;
-
-  switch (key) {
-    case LV_KEY_UP: {
-      i = i < 1 ? 12 - 1 : i - 1;
-      break;
-    }
-    case LV_KEY_DOWN : {
-      i = i + 1 >= 12 ? 0 : i + 1;
-      break;
-    }
-    case LV_KEY_LEFT: {
-      lv_group_focus_prev(lv_group_get_default());
-      break;
-    }
-    case LV_KEY_RIGHT: {
-      lv_group_focus_next(lv_group_get_default());
-      break;
-    }
-    case LV_KEY_ENTER: {
-      ESP_LOGI(__func__, "Current item: %d", i + 1);
-      break;
-    }
-    default: { break; }
-  }
-
-  lv_roller_set_selected(obj, i, LV_ANIM_ON);
-}
-
-void lv_example(void) {
-  lv_obj_t *scr = lv_scr_act();
+_Noreturn void LvglMainPage() {
+  // 输入设备组
   lv_group_t *group = lv_group_create();
   lv_group_set_default(group);
   lv_indev_set_group(indev_keypad, group);
-  // lv_group_set_editing(group, true); // 编辑模式
 
+  /*Create a menu object*/
+  lv_obj_t *menu = lv_menu_create(lv_scr_act());
+  lv_obj_set_size(menu, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
+  lv_obj_center(menu);
+
+  /*Modify the header*/
+  lv_obj_t *back_btn = lv_menu_get_main_header_back_btn(menu);
+  lv_obj_t *back_btn_label = lv_label_create(back_btn);
+  lv_label_set_text(back_btn_label, "Back");
+
+  lv_obj_t *cont;
   lv_obj_t *label;
-  lv_obj_t *btn1 = lv_btn_create(lv_scr_act());
-  lv_obj_add_event_cb(btn1, btn_event_handler, LV_EVENT_ALL, NULL);
-  lv_obj_align(btn1, LV_ALIGN_TOP_LEFT, 0, 0);
 
-  label = lv_label_create(btn1);
-  lv_label_set_text(label, "Button");
-  lv_obj_center(label);
+  /*Create sub pages*/
+  lv_obj_t *sub_1_page = lv_menu_page_create(menu, "Page 1");
 
-  lv_obj_t *btn2 = lv_btn_create(lv_scr_act());
-  lv_obj_add_event_cb(btn2, btn_event_handler, LV_EVENT_ALL, NULL);
-  lv_obj_align(btn2, LV_ALIGN_BOTTOM_LEFT, 0, 0);
-  lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
-  lv_obj_set_height(btn2, LV_SIZE_CONTENT);
+  cont = lv_menu_cont_create(sub_1_page);
+  label = lv_label_create(cont);
+  lv_label_set_text(label, "Hello, I am hiding here");
 
-  label = lv_label_create(btn2);
-  lv_label_set_text(label, "Toggle");
-  lv_obj_center(label);
+  lv_obj_t *sub_2_page = lv_menu_page_create(menu, "Page 2");
 
-  lv_obj_t *roller1 = lv_roller_create(scr);
-  lv_roller_set_options(roller1,
-                        "January\n"
-                        "February\n"
-                        "March\n"
-                        "April\n"
-                        "May\n"
-                        "June\n"
-                        "July\n"
-                        "August\n"
-                        "September\n"
-                        "October\n"
-                        "November\n"
-                        "December",
-                        LV_ROLLER_MODE_INFINITE);
+  cont = lv_menu_cont_create(sub_2_page);
+  label = lv_label_create(cont);
+  lv_label_set_text(label, "Hello, I am hiding here");
 
-  lv_roller_set_visible_row_count(roller1, 3);
-  lv_obj_align(roller1, LV_ALIGN_RIGHT_MID, 0, 0);
-  lv_obj_add_event_cb(roller1, tmp_event_handler, LV_EVENT_ALL, NULL);
+  lv_obj_t *sub_3_page = lv_menu_page_create(menu, "Page 3");
 
-  lv_group_add_obj(group, btn1);
-  lv_group_add_obj(group, btn2);
-  lv_group_add_obj(group, roller1);
+  cont = lv_menu_cont_create(sub_3_page);
+  label = lv_label_create(cont);
+  lv_label_set_text(label, "Hello, I am hiding here");
 
-  lv_group_focus_obj(btn1); // 分组聚焦到对象
-}
+  /*Create a main page*/
+  lv_obj_t *main_page = lv_menu_page_create(menu, NULL);
 
-void lv_example_win_1(void) {
-  lv_group_t *group = lv_group_create();
-  lv_group_set_default(group);
-  lv_indev_set_group(indev_keypad, group);
+  cont = lv_menu_cont_create(main_page);
+  label = lv_label_create(cont);
+  lv_label_set_text(label, "Item 1 (Click me!)");
+  lv_menu_set_load_page_event(menu, cont, sub_1_page);
+  lv_obj_add_event_cb(cont, btn_event_handler, LV_EVENT_ALL, NULL);
+  lv_group_add_obj(group, cont);
+  lv_group_focus_obj(cont); // 分组聚焦到对象
 
-  lv_obj_t *win = lv_win_create(lv_scr_act(), lv_pct(20));
-  lv_obj_t *btn;
-  btn = lv_win_add_btn(win, LV_SYMBOL_LEFT, lv_pct(10));
-  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
-  lv_group_add_obj(group, btn);
-  lv_group_focus_obj(btn); // 分组聚焦到对象
+  cont = lv_menu_cont_create(main_page);
+  label = lv_label_create(cont);
+  lv_label_set_text(label, "Item 2 (Click me!)");
+  lv_menu_set_load_page_event(menu, cont, sub_2_page);
+  lv_obj_add_event_cb(cont, btn_event_handler, LV_EVENT_ALL, NULL);
+  lv_group_add_obj(group, cont);
 
-  lv_obj_t *win_label = lv_win_add_title(win, "A title of this window");
-  lv_label_set_long_mode(win_label, LV_LABEL_LONG_SCROLL);
+  cont = lv_menu_cont_create(main_page);
+  label = lv_label_create(cont);
+  lv_label_set_text(label, "Item 3 (Click me!)");
+  lv_menu_set_load_page_event(menu, cont, sub_3_page);
+  lv_obj_add_event_cb(cont, btn_event_handler, LV_EVENT_ALL, NULL);
+  lv_group_add_obj(group, cont);
+
+  lv_menu_set_page(menu, main_page);
 
   static lv_style_t style_base;
   lv_style_init(&style_base);
   lv_style_set_bg_opa(&style_base, LV_OPA_TRANSP); // 设置背景透明度
-  lv_style_set_text_color(&style_base, lv_color_black()); // 设置文本颜色
+  lv_style_set_text_color(&style_base, lv_palette_main(LV_PALETTE_LIGHT_GREEN)); // 设置文本颜色
   lv_style_set_shadow_opa(&style_base, LV_OPA_TRANSP); // 设置阴影透明度
-  // btn = lv_win_add_btn(win, LV_SYMBOL_WIFI, lv_pct(10));
-  btn = lv_win_add_btn(win, LV_SYMBOL_REFRESH, lv_pct(10));
-  lv_obj_add_style(btn, &style_base, 0);
-  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
-
-  btn = lv_win_add_btn(win, LV_SYMBOL_RIGHT, lv_pct(10));
-  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
-  lv_group_add_obj(group, btn);
-
-  btn = lv_win_add_btn(win, LV_SYMBOL_CLOSE, lv_pct(20));
-  lv_obj_add_event_cb(btn, btn_event_handler, LV_EVENT_ALL, NULL);
-  lv_group_add_obj(group, btn);
-
-  lv_obj_t *cont = lv_win_get_content(win);  /*Content can be added here*/
-  lv_obj_t *label = lv_label_create(cont);
-  lv_label_set_text(label, "This is\n"
-                           "a pretty\n"
-                           "long text\n"
-                           "to see how\n"
-                           "the window\n"
-                           "becomes\n"
-                           "scrollable.\n"
-                           "\n"
-                           "\n"
-                           "Some more\n"
-                           "text to be\n"
-                           "sure it\n"
-                           "overflows. :)");
-}
-
-_Noreturn void LvglMainPage() {
-  lv_obj_t *label = lv_label_create(lv_scr_act());
-  if (NULL != label) {
-    lv_label_set_text(label, "Hello world");
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-  }
-
-  lv_example_win_1();
+  label = lv_label_create(lv_scr_act());
+  lv_obj_align(label, LV_ALIGN_TOP_RIGHT, 0, 0);
+  lv_label_set_text(label, LV_SYMBOL_WIFI);
+  // lv_label_set_text(label, LV_SYMBOL_REFRESH);
+  lv_obj_add_style(label, &style_base, 0);
+  lv_obj_add_event_cb(label, btn_event_handler, LV_EVENT_ALL, NULL);
 
   while (true) {
-    vTaskDelete(NULL);
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 

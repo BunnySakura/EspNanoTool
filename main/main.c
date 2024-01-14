@@ -7,14 +7,13 @@
 
 #include "lvgl.h"
 #include "lvgl_helpers.h"
-#include "lv_port_indev.h"
-#include "lvgl_init.h"
+#include "lvgl_driver/lv_port_indev.h"
+#include "lvgl_driver/lvgl_init.h"
 
-#include "esp_littlefs.h"
-
-#include "./gui/show_qrcode.h"
-#include "./gui/main_page.h"
-#include "./app/wifi_dpp.h"
+#include "wifi_dpp.h"
+#include "gui_qrcode.h"
+#include "main_page.h"
+#include "littlefs_init.h"
 
 #include "driver/gpio.h"
 #include "sdkconfig.h"
@@ -102,6 +101,9 @@ _Noreturn void BlinkLed(void *params) {
 }
 
 _Noreturn void app_main(void) {
+  DrvLittleFs *little_fs = DrvLittleFsInit();
+  DrvLittleFsMount(little_fs, DEFAULT_ROOT_PATH, "littlefs");
+
   /**
    * \brief Start LVGL.
    */
@@ -110,7 +112,7 @@ _Noreturn void app_main(void) {
   xTaskCreate(LvglMainPage, "LvglMainPage", 1024 * 4, NULL, 1, NULL);
   xTaskCreate(PrintChipInfo, "PrintChipInfo", 1024 * 2, NULL, tskIDLE_PRIORITY, NULL);
   // xTaskCreate(BlinkLed, "BlinkLed", 1024 * 2, NULL, 1, NULL);
-  xTaskCreate(DppEnrolleeMain, "DppEnrolleeMain", 1024 * 4, NULL, 1, NULL);
+  // xTaskCreate(DppEnrolleeMain, "DppEnrolleeMain", 1024 * 4, NULL, 1, NULL);
 
   while (true) {
     vTaskDelay(pdMS_TO_TICKS(10));
