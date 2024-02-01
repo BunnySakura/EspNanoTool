@@ -9,11 +9,13 @@
 #include "lvgl_helpers.h"
 #include "lvgl_driver/lv_port_indev.h"
 #include "lvgl_driver/lvgl_init.h"
-
+#include "littlefs_init.h"
 #include "wifi_dpp.h"
 #include "gui_qrcode.h"
 #include "main_page.h"
-#include "littlefs_init.h"
+#include "gui_guider.h"
+#include "events_init.h"
+#include "custom.h"
 
 #include "driver/gpio.h"
 #include "sdkconfig.h"
@@ -32,6 +34,8 @@
 #define LED_5 13
 #define LOW_LEVEL 0
 #define HIGH_LEVEL 1
+
+lv_ui guider_ui;
 
 _Noreturn void PrintChipInfo(void *params) {
   (void) params;
@@ -109,10 +113,12 @@ _Noreturn void app_main(void) {
    */
   lvgl_init();
 
-  xTaskCreate(LvglMainPage, "LvglMainPage", 1024 * 4, NULL, 1, NULL);
-  xTaskCreate(PrintChipInfo, "PrintChipInfo", 1024 * 2, NULL, tskIDLE_PRIORITY, NULL);
-  // xTaskCreate(BlinkLed, "BlinkLed", 1024 * 2, NULL, 1, NULL);
-  // xTaskCreate(DppEnrolleeMain, "DppEnrolleeMain", 1024 * 4, NULL, 1, NULL);
+  /*Create a GUI-Guider app */
+  setup_ui(&guider_ui);
+  events_init(&guider_ui);
+  custom_init(&guider_ui);
+
+  xTaskCreate(PrintChipInfo, "PrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
 
   while (true) {
     vTaskDelay(pdMS_TO_TICKS(10));

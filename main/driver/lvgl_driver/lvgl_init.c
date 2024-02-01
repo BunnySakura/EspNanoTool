@@ -5,6 +5,8 @@
 #include "lv_port_indev.h"
 #include "lvgl_init.h"
 
+extern lv_indev_t *indev_keypad;
+
 void lv_tick_task(void *arg) {
   (void) arg;
   lv_tick_inc(1);
@@ -13,11 +15,11 @@ void lv_tick_task(void *arg) {
 void lv_disp_init() {
   lv_init();
   lvgl_driver_init();
-  lv_color_t *buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+  lv_color_t * buf1 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
   assert(buf1 != NULL);
   /* Use double buffered when not working with monochrome displays */
 #ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
-  lv_color_t *buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+  lv_color_t * buf2 = heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
   assert(buf2 != NULL);
 #else
   static lv_color_t *buf2 = NULL;
@@ -48,5 +50,10 @@ void lv_disp_init() {
 void lvgl_init() {
   lv_disp_init();
   lv_port_indev_init();
+
+  // 初始化默认输入设备组
+  lv_group_t *group = lv_group_create();
+  lv_group_set_default(group);
+  lv_indev_set_group(indev_keypad, group);
 }
 
