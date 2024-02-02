@@ -90,8 +90,8 @@ void setup_scr_uart_chart_page(lv_ui *ui){
 	lv_obj_set_style_text_align(ui->uart_chart_page_back_main_btn, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
 	ui->uart_chart_page_back_main_btn_label = lv_label_create(ui->uart_chart_page_back_main_btn);
 	lv_label_set_text(ui->uart_chart_page_back_main_btn_label, "×");
-	lv_obj_set_size(ui->uart_chart_page_back_main_btn_label, 60, 20);
-	lv_label_set_long_mode(ui->uart_chart_page_back_main_btn_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+	lv_obj_set_size(ui->uart_chart_page_back_main_btn_label, 10, 10);
+	lv_label_set_long_mode(ui->uart_chart_page_back_main_btn_label, LV_LABEL_LONG_CLIP);
 	lv_obj_set_style_pad_all(ui->uart_chart_page_back_main_btn, 0, LV_STATE_DEFAULT);
 	lv_obj_align(ui->uart_chart_page_back_main_btn_label, LV_ALIGN_CENTER, 0, 0);
 

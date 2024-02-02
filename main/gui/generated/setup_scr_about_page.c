@@ -89,8 +89,8 @@ void setup_scr_about_page(lv_ui *ui){
 	lv_obj_set_style_text_align(ui->about_page_back_setting_btn, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN|LV_STATE_DEFAULT);
 	ui->about_page_back_setting_btn_label = lv_label_create(ui->about_page_back_setting_btn);
 	lv_label_set_text(ui->about_page_back_setting_btn_label, "×");
-	lv_obj_set_size(ui->about_page_back_setting_btn_label, 60, 20);
-	lv_label_set_long_mode(ui->about_page_back_setting_btn_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+	lv_obj_set_size(ui->about_page_back_setting_btn_label, 10, 10);
+	lv_label_set_long_mode(ui->about_page_back_setting_btn_label, LV_LABEL_LONG_CLIP);
 	lv_obj_set_style_pad_all(ui->about_page_back_setting_btn, 0, LV_STATE_DEFAULT);
 	lv_obj_align(ui->about_page_back_setting_btn_label, LV_ALIGN_CENTER, 0, 0);
 

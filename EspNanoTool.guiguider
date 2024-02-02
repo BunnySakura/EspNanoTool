@@ -188,10 +188,10 @@
 			"list": [
 				{
 					"name": "app_list",
-					"id": "5b56w6i1",
-					"type": "carousel",
+					"id": "neh2pwim",
+					"type": "cont",
 					"left": 0,
-					"top": 0,
+					"top": -1,
 					"visible": true,
 					"is_move_animation": false,
 					"desX": 0,
@@ -201,15 +201,24 @@
 					"width": 160,
 					"height": 80,
 					"default_style": false,
-					"element_width": 160,
-					"element_count": 1,
 					"scrollbar_mode": "OFF",
-					"current_item": 0,
 					"child": [
 						{
 							"name": "app_1",
-							"type": "obj",
-							"is_carousel_ele": true,
+							"id": "d517jiim",
+							"type": "cont",
+							"left": 0,
+							"top": 0,
+							"visible": true,
+							"is_move_animation": false,
+							"desX": 0,
+							"desY": 0,
+							"path_type": "linear",
+							"duration": 1000,
+							"width": 160,
+							"height": 80,
+							"default_style": false,
+							"scrollbar_mode": "OFF",
 							"child": [
 								{
 									"name": "digital_clock_app",
@@ -281,12 +290,49 @@
 										}
 									]
 								}
+							],
+							"style": [
+								{
+									"part": "LV_PART_MAIN",
+									"state": "LV_STATE_DEFAULT",
+									"disable": false,
+									"border_width": 0,
+									"border_color": "#2195f6",
+									"border_opa": 255,
+									"radius": 0,
+									"bg_color": "#ffffff",
+									"bg_grad_color": "#ffffff",
+									"bg_grad_dir": "LV_GRAD_DIR_NONE",
+									"bg_opa": 255,
+									"padding_top": 0,
+									"padding_bottom": 0,
+									"padding_left": 0,
+									"padding_right": 0,
+									"shadow_color": "#2195f6",
+									"shadow_opa": 255,
+									"shadow_width": 0,
+									"shadow_spread": 0,
+									"shadow_ofs_x": 0,
+									"shadow_ofs_y": 0
+								}
 							]
 						},
 						{
 							"name": "app_2",
-							"type": "obj",
-							"is_carousel_ele": true,
+							"id": "kxa7z723",
+							"type": "cont",
+							"left": 0,
+							"top": 0,
+							"visible": true,
+							"is_move_animation": false,
+							"desX": 0,
+							"desY": 0,
+							"path_type": "linear",
+							"duration": 1000,
+							"width": 160,
+							"height": 80,
+							"default_style": false,
+							"scrollbar_mode": "OFF",
 							"child": [
 								{
 									"name": "uart_chart_app",
@@ -309,8 +355,8 @@
 									"sd_path": "",
 									"text": "",
 									"toggle": true,
-									"src_released": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/uart.png",
-									"src_pressed": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/uart_press.png",
+									"src_released": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/uart.png",
+									"src_pressed": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/uart_press.png",
 									"src_checked_released": "",
 									"src_checked_pressed": "",
 									"color_format": "true-color-alpha",
@@ -434,12 +480,49 @@
 										}
 									]
 								}
+							],
+							"style": [
+								{
+									"part": "LV_PART_MAIN",
+									"state": "LV_STATE_DEFAULT",
+									"disable": false,
+									"border_width": 0,
+									"border_color": "#2195f6",
+									"border_opa": 255,
+									"radius": 0,
+									"bg_color": "#ffffff",
+									"bg_grad_color": "#ffffff",
+									"bg_grad_dir": "LV_GRAD_DIR_NONE",
+									"bg_opa": 255,
+									"padding_top": 0,
+									"padding_bottom": 0,
+									"padding_left": 0,
+									"padding_right": 0,
+									"shadow_color": "#2195f6",
+									"shadow_opa": 255,
+									"shadow_width": 0,
+									"shadow_spread": 0,
+									"shadow_ofs_x": 0,
+									"shadow_ofs_y": 0
+								}
 							]
 						},
 						{
 							"name": "app_3",
-							"type": "obj",
-							"is_carousel_ele": true,
+							"id": "tkky8ghm",
+							"type": "cont",
+							"left": 0,
+							"top": 0,
+							"visible": true,
+							"is_move_animation": false,
+							"desX": 0,
+							"desY": 0,
+							"path_type": "linear",
+							"duration": 1000,
+							"width": 160,
+							"height": 80,
+							"default_style": false,
+							"scrollbar_mode": "OFF",
 							"child": [
 								{
 									"name": "setting_app",
@@ -462,8 +545,8 @@
 									"sd_path": "",
 									"text": "",
 									"toggle": true,
-									"src_released": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/setting.png",
-									"src_pressed": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/setting_press.png",
+									"src_released": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/setting.png",
+									"src_pressed": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/setting_press.png",
 									"src_checked_released": "",
 									"src_checked_pressed": "",
 									"color_format": "true-color-alpha",
@@ -587,6 +670,31 @@
 										}
 									]
 								}
+							],
+							"style": [
+								{
+									"part": "LV_PART_MAIN",
+									"state": "LV_STATE_DEFAULT",
+									"disable": false,
+									"border_width": 0,
+									"border_color": "#2195f6",
+									"border_opa": 255,
+									"radius": 0,
+									"bg_color": "#ffffff",
+									"bg_grad_color": "#ffffff",
+									"bg_grad_dir": "LV_GRAD_DIR_NONE",
+									"bg_opa": 255,
+									"padding_top": 0,
+									"padding_bottom": 0,
+									"padding_left": 0,
+									"padding_right": 0,
+									"shadow_color": "#2195f6",
+									"shadow_opa": 255,
+									"shadow_width": 0,
+									"shadow_spread": 0,
+									"shadow_ofs_x": 0,
+									"shadow_ofs_y": 0
+								}
 							]
 						}
 					],
@@ -595,25 +703,24 @@
 							"part": "LV_PART_MAIN",
 							"state": "LV_STATE_DEFAULT",
 							"disable": false,
+							"border_width": 0,
+							"border_color": "#2195f6",
+							"border_opa": 255,
+							"radius": 0,
 							"bg_color": "#ffffff",
 							"bg_grad_color": "#ffffff",
-							"bg_opa": 255,
 							"bg_grad_dir": "LV_GRAD_DIR_NONE",
-							"radius": 0,
-							"shadow_color": "#ffffff",
+							"bg_opa": 255,
+							"padding_top": 0,
+							"padding_bottom": 0,
+							"padding_left": 0,
+							"padding_right": 0,
+							"shadow_color": "#2195f6",
 							"shadow_opa": 255,
 							"shadow_width": 0,
 							"shadow_spread": 0,
 							"shadow_ofs_x": 0,
 							"shadow_ofs_y": 0
-						},
-						{
-							"part": "LV_PART_SCROLLBAR",
-							"state": "LV_STATE_DEFAULT",
-							"disable": false,
-							"bg_color": "#cccccc",
-							"bg_opa": 255,
-							"radius": 0
 						}
 					]
 				}
@@ -1145,9 +1252,9 @@
 					"scrollbar_mode": "OFF",
 					"text": "×",
 					"mode": true,
-					"text_width": "60",
-					"text_height": "20",
-					"long_mode": "LV_LABEL_LONG_SCROLL_CIRCULAR",
+					"text_width": 10,
+					"text_height": 10,
+					"long_mode": "LV_LABEL_LONG_CLIP",
 					"toggle": false,
 					"style": [
 						{
@@ -1430,9 +1537,9 @@
 					"scrollbar_mode": "OFF",
 					"text": "×",
 					"mode": true,
-					"text_width": "60",
-					"text_height": "20",
-					"long_mode": "LV_LABEL_LONG_SCROLL_CIRCULAR",
+					"text_width": 10,
+					"text_height": 10,
+					"long_mode": "LV_LABEL_LONG_CLIP",
 					"toggle": false,
 					"style": [
 						{
@@ -1750,8 +1857,8 @@
 				"widgets": [
 					{
 						"name": "main_page_app_list",
-						"id": "5b56w6i1",
-						"type": "carousel",
+						"id": "neh2pwim",
+						"type": "cont",
 						"visible": true,
 						"scrollbar_mode": "OFF",
 						"pos": [
@@ -1774,9 +1881,29 @@
 						"default_style": false,
 						"child": [
 							{
-								"name": "app_3",
-								"type": "obj",
-								"is_carousel_ele": true,
+								"name": "main_page_app_3",
+								"id": "tkky8ghm",
+								"type": "cont",
+								"visible": true,
+								"scrollbar_mode": "OFF",
+								"pos": [
+									0,
+									0
+								],
+								"size": [
+									160,
+									80
+								],
+								"is_move_animation": false,
+								"path_type": "linear",
+								"move_animation": {
+									"des_pos": [
+										0,
+										0
+									],
+									"duration": 1000
+								},
+								"default_style": false,
 								"child": [
 									{
 										"name": "main_page_setting_app",
@@ -1806,8 +1933,8 @@
 										"text_align": "center",
 										"text": "",
 										"color_format": "true-color-alpha",
-										"src_released": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/setting.png",
-										"src_pressed": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/setting_press.png",
+										"src_released": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/setting.png",
+										"src_pressed": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/setting_press.png",
 										"src_checked_released": "",
 										"src_checked_pressed": "",
 										"use_fs": false,
@@ -1876,12 +2003,56 @@
 										]
 									}
 								],
-								"index": 2
+								"style": [
+									{
+										"part": "LV_PART_MAIN",
+										"state": "LV_STATE_DEFAULT",
+										"disable": false,
+										"border_width": 2,
+										"border_color": "#2195f6",
+										"border_opa": 255,
+										"radius": 0,
+										"bg_color": "#ffffff",
+										"bg_grad_color": "#ffffff",
+										"bg_grad_dir": "LV_GRAD_DIR_NONE",
+										"bg_opa": 255,
+										"padding_top": 0,
+										"padding_bottom": 0,
+										"padding_left": 0,
+										"padding_right": 0,
+										"shadow_color": "#2195f6",
+										"shadow_opa": 255,
+										"shadow_width": 0,
+										"shadow_spread": 0,
+										"shadow_ofs_x": 0,
+										"shadow_ofs_y": 0
+									}
+								]
 							},
 							{
-								"name": "app_2",
-								"type": "obj",
-								"is_carousel_ele": true,
+								"name": "main_page_app_2",
+								"id": "kxa7z723",
+								"type": "cont",
+								"visible": true,
+								"scrollbar_mode": "OFF",
+								"pos": [
+									0,
+									0
+								],
+								"size": [
+									160,
+									80
+								],
+								"is_move_animation": false,
+								"path_type": "linear",
+								"move_animation": {
+									"des_pos": [
+										0,
+										0
+									],
+									"duration": 1000
+								},
+								"default_style": false,
 								"child": [
 									{
 										"name": "main_page_uart_chart_app",
@@ -1911,8 +2082,8 @@
 										"text_align": "center",
 										"text": "",
 										"color_format": "true-color-alpha",
-										"src_released": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/uart.png",
-										"src_pressed": "/home/hello3rd/GUI-Guider-Projects/ESP32C3/import/image/uart_press.png",
+										"src_released": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/uart.png",
+										"src_pressed": "/home/hello3rd/GUI-Guider-Projects/EspNanoTool/import/image/uart_press.png",
 										"src_checked_released": "",
 										"src_checked_pressed": "",
 										"use_fs": false,
@@ -1981,12 +2152,56 @@
 										]
 									}
 								],
-								"index": 1
+								"style": [
+									{
+										"part": "LV_PART_MAIN",
+										"state": "LV_STATE_DEFAULT",
+										"disable": false,
+										"border_width": 2,
+										"border_color": "#2195f6",
+										"border_opa": 255,
+										"radius": 0,
+										"bg_color": "#ffffff",
+										"bg_grad_color": "#ffffff",
+										"bg_grad_dir": "LV_GRAD_DIR_NONE",
+										"bg_opa": 255,
+										"padding_top": 0,
+										"padding_bottom": 0,
+										"padding_left": 0,
+										"padding_right": 0,
+										"shadow_color": "#2195f6",
+										"shadow_opa": 255,
+										"shadow_width": 0,
+										"shadow_spread": 0,
+										"shadow_ofs_x": 0,
+										"shadow_ofs_y": 0
+									}
+								]
 							},
 							{
-								"name": "app_1",
-								"type": "obj",
-								"is_carousel_ele": true,
+								"name": "main_page_app_1",
+								"id": "d517jiim",
+								"type": "cont",
+								"visible": true,
+								"scrollbar_mode": "OFF",
+								"pos": [
+									0,
+									0
+								],
+								"size": [
+									160,
+									80
+								],
+								"is_move_animation": false,
+								"path_type": "linear",
+								"move_animation": {
+									"des_pos": [
+										0,
+										0
+									],
+									"duration": 1000
+								},
+								"default_style": false,
 								"child": [
 									{
 										"name": "main_page_digital_clock_app",
@@ -2067,35 +2282,56 @@
 										]
 									}
 								],
-								"index": 0
+								"style": [
+									{
+										"part": "LV_PART_MAIN",
+										"state": "LV_STATE_DEFAULT",
+										"disable": false,
+										"border_width": 2,
+										"border_color": "#2195f6",
+										"border_opa": 255,
+										"radius": 0,
+										"bg_color": "#ffffff",
+										"bg_grad_color": "#ffffff",
+										"bg_grad_dir": "LV_GRAD_DIR_NONE",
+										"bg_opa": 255,
+										"padding_top": 0,
+										"padding_bottom": 0,
+										"padding_left": 0,
+										"padding_right": 0,
+										"shadow_color": "#2195f6",
+										"shadow_opa": 255,
+										"shadow_width": 0,
+										"shadow_spread": 0,
+										"shadow_ofs_x": 0,
+										"shadow_ofs_y": 0
+									}
+								]
 							}
 						],
-						"element_count": 3,
-						"element_width": 160,
 						"style": [
 							{
 								"part": "LV_PART_MAIN",
 								"state": "LV_STATE_DEFAULT",
 								"disable": false,
+								"border_width": 2,
+								"border_color": "#2195f6",
+								"border_opa": 255,
+								"radius": 0,
 								"bg_color": "#ffffff",
 								"bg_grad_color": "#ffffff",
-								"bg_opa": 255,
 								"bg_grad_dir": "LV_GRAD_DIR_NONE",
-								"radius": 0,
-								"shadow_color": "#ffffff",
+								"bg_opa": 255,
+								"padding_top": 0,
+								"padding_bottom": 0,
+								"padding_left": 0,
+								"padding_right": 0,
+								"shadow_color": "#2195f6",
 								"shadow_opa": 255,
 								"shadow_width": 0,
 								"shadow_spread": 0,
 								"shadow_ofs_x": 0,
 								"shadow_ofs_y": 0
-							},
-							{
-								"part": "LV_PART_SCROLLBAR",
-								"state": "LV_STATE_DEFAULT",
-								"disable": false,
-								"bg_color": "#cccccc",
-								"bg_opa": 255,
-								"radius": 0
 							}
 						]
 					}
@@ -2584,9 +2820,9 @@
 						],
 						"text": "×",
 						"toggle": false,
-						"long_mode": "LV_LABEL_LONG_SCROLL_CIRCULAR",
-						"text_height": "20",
-						"text_width": "60",
+						"long_mode": "LV_LABEL_LONG_CLIP",
+						"text_height": 10,
+						"text_width": 10,
 						"mode": true
 					}
 				]
@@ -2850,9 +3086,9 @@
 						],
 						"text": "×",
 						"toggle": false,
-						"long_mode": "LV_LABEL_LONG_SCROLL_CIRCULAR",
-						"text_height": "20",
-						"text_width": "60",
+						"long_mode": "LV_LABEL_LONG_CLIP",
+						"text_height": 10,
+						"text_width": 10,
 						"mode": true
 					}
 				]

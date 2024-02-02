@@ -13,27 +13,22 @@ void DppEnrolleeMain() {}
 void events_init(lv_ui *ui) {
 }
 
-static void app_list_event_handler(lv_event_t *e)//按键回调函数
-{
-  static int8_t current_app_idx = 0;
-  lv_obj_t *current_app = NULL;
-
+static void main_page_default_event_handler(lv_event_t *e) {
   lv_event_code_t code = lv_event_get_code(e);
   uint32_t key = lv_event_get_key(e);
+  lv_group_t *group = lv_group_get_default();
 
   switch (key) {
     case LV_KEY_UP:
     case LV_KEY_LEFT: {
-      current_app_idx = current_app_idx <= 0 ? 2 : current_app_idx - 1;
-      ESP_LOGD(__func__, "Current app index: %d", current_app_idx);
-      lv_group_focus_prev(lv_group_get_default());
+      ESP_LOGI(__func__, "<= app ->");
+      lv_group_focus_prev(group);
       break;
     }
     case LV_KEY_DOWN :
     case LV_KEY_RIGHT: {
-      current_app_idx = current_app_idx >= 2 ? 0 : current_app_idx + 1;
-      ESP_LOGD(__func__, "Current app index: %d", current_app_idx);
-      lv_group_focus_next(lv_group_get_default());
+      ESP_LOGI(__func__, "<- app =>");
+      lv_group_focus_next(group);
       break;
     }
     case LV_KEY_ENTER: {
@@ -42,32 +37,21 @@ static void app_list_event_handler(lv_event_t *e)//按键回调函数
       } else if (code == LV_EVENT_VALUE_CHANGED) {
         ESP_LOGI(__func__, "Toggled");
       } else {
-        ESP_LOGD(__func__, "Other");
+        ESP_LOGD(__func__, "Other: %d", code);
       }
-      break;
-    }
-    default: { break; }
-  }
-
-  switch (current_app_idx) {
-    case 0: {
-      current_app = guider_ui.main_page_digital_clock_app;
-      break;
-    }
-    case 1: {
-      current_app = guider_ui.main_page_uart_chart_app;
-      break;
-    }
-    case 2: {
-      current_app = guider_ui.setting_page_setting_menu;
       break;
     }
     default: {
       break;
     }
   }
-  lv_group_focus_obj(current_app); // 分组聚焦到对象
-  lv_obj_scroll_to_view_recursive(current_app, LV_ANIM_ON);
+
+  lv_obj_scroll_to_view(lv_group_get_focused(group), LV_ANIM_ON);
+}
+
+static void main_page_digital_clock_app_event_handler(lv_event_t *e)//按键回调函数
+{
+  main_page_default_event_handler(e);
 }
 
 static void main_page_setting_app_event_handler(lv_event_t *e) {
@@ -86,6 +70,8 @@ static void main_page_setting_app_event_handler(lv_event_t *e) {
       break;
     default: break;
   }
+
+  main_page_default_event_handler(e);
 }
 
 static void main_page_uart_chart_app_event_handler(lv_event_t *e) {
@@ -104,18 +90,22 @@ static void main_page_uart_chart_app_event_handler(lv_event_t *e) {
       break;
     default: break;
   }
+
+  main_page_default_event_handler(e);
 }
 
 void events_init_main_page(lv_ui *ui) {
-  lv_group_add_obj(lv_group_get_default(), ui->app_1);
-  lv_group_add_obj(lv_group_get_default(), ui->app_2);
-  lv_group_add_obj(lv_group_get_default(), ui->app_3);
-  lv_group_focus_obj(ui->app_1); // 分组聚焦到对象
+  lv_group_add_obj(lv_group_get_default(), ui->main_page_app_1);
+  lv_group_add_obj(lv_group_get_default(), ui->main_page_app_2);
+  lv_group_add_obj(lv_group_get_default(), ui->main_page_app_3);
+  lv_group_focus_obj(ui->main_page_app_1); // 分组聚焦到对象
+  lv_obj_update_snap(ui->main_page_app_list, LV_ANIM_ON);
 
-  lv_obj_add_event_cb(ui->app_1, app_list_event_handler, LV_EVENT_ALL, ui);
-  lv_obj_add_event_cb(ui->app_2, app_list_event_handler, LV_EVENT_ALL, ui);
-  lv_obj_add_event_cb(ui->app_3, app_list_event_handler, LV_EVENT_ALL, ui);
+  lv_obj_add_event_cb(ui->main_page_app_1, main_page_default_event_handler, LV_EVENT_ALL, ui);
+  lv_obj_add_event_cb(ui->main_page_app_2, main_page_default_event_handler, LV_EVENT_ALL, ui);
+  lv_obj_add_event_cb(ui->main_page_app_3, main_page_default_event_handler, LV_EVENT_ALL, ui);
 
+  lv_obj_add_event_cb(ui->main_page_digital_clock_app, main_page_digital_clock_app_event_handler, LV_EVENT_ALL, ui);
   lv_obj_add_event_cb(ui->main_page_setting_app, main_page_setting_app_event_handler, LV_EVENT_ALL, ui);
   lv_obj_add_event_cb(ui->main_page_uart_chart_app, main_page_uart_chart_app_event_handler, LV_EVENT_ALL, ui);
 }

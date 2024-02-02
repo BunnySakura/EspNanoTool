@@ -18,13 +18,13 @@ typedef struct
 	lv_obj_t *main_page;
 	bool main_page_del;
 	lv_obj_t *main_page_app_list;
-	lv_obj_t *app_3;
+	lv_obj_t *main_page_app_3;
 	lv_obj_t *main_page_setting_app;
 	lv_obj_t *main_page_setting_app_label;
-	lv_obj_t *app_2;
+	lv_obj_t *main_page_app_2;
 	lv_obj_t *main_page_uart_chart_app;
 	lv_obj_t *main_page_uart_chart_app_label;
-	lv_obj_t *app_1;
+	lv_obj_t *main_page_app_1;
 	lv_obj_t *main_page_digital_clock_app;
 	lv_obj_t *setting_page;
 	bool setting_page_del;

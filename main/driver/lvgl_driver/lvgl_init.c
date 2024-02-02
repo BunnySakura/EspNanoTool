@@ -56,4 +56,3 @@ void lvgl_init() {
   lv_group_set_default(group);
   lv_indev_set_group(indev_keypad, group);
 }
-
