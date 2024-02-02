@@ -14,6 +14,7 @@ idf_component_register(
         gui/generated/setup_scr_main_page.c
         gui/generated/setup_scr_setting_page.c
         gui/generated/setup_scr_uart_chart_page.c
+        gui/generated/guider_fonts/lv_font_montserratMedium_10.c
         gui/generated/guider_fonts/lv_font_montserratMedium_12.c
         gui/generated/guider_fonts/lv_font_montserratMedium_16.c
         gui/generated/guider_fonts/lv_font_montserratMedium_32.c
