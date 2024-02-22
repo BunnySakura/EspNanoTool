@@ -273,6 +273,7 @@ void lv_port_indev_init(void) {
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+#include "sys/time.h"
 
 // GPIO key
 enum {
@@ -289,8 +290,15 @@ enum {
 static QueueHandle_t gpio_evt_queue = NULL;
 
 static void IRAM_ATTR gpio_isr_handler(void *arg) {
+  static struct timeval current_timestamp = {0};
   uint32_t gpio_num = (uint32_t) arg;
-  xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+  struct timeval last_timestamp = current_timestamp;
+  gettimeofday(&current_timestamp, NULL);
+  if (current_timestamp.tv_sec - last_timestamp.tv_sec > 1
+      || current_timestamp.tv_usec - last_timestamp.tv_usec > 1) {
+    // 通过时间戳过滤按键毛刺（抖动），两次间隔大于*s或*us
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+  }
 }
 
 static void GpioGlitchFilter(gpio_num_t gpio_num) {
@@ -326,11 +334,11 @@ static void keypad_init(void) {
   GpioGlitchFilter(kKeyCenter);
 
   //change gpio interrupt type for one pin
-  gpio_set_intr_type(kKeyUp, GPIO_INTR_NEGEDGE);
-  gpio_set_intr_type(kKeyDown, GPIO_INTR_NEGEDGE);
-  gpio_set_intr_type(kKeyLEFT, GPIO_INTR_NEGEDGE);
-  gpio_set_intr_type(kKeyRight, GPIO_INTR_NEGEDGE);
-  gpio_set_intr_type(kKeyCenter, GPIO_INTR_NEGEDGE);
+  gpio_set_intr_type(kKeyUp, GPIO_INTR_POSEDGE);
+  gpio_set_intr_type(kKeyDown, GPIO_INTR_POSEDGE);
+  gpio_set_intr_type(kKeyLEFT, GPIO_INTR_POSEDGE);
+  gpio_set_intr_type(kKeyRight, GPIO_INTR_POSEDGE);
+  gpio_set_intr_type(kKeyCenter, GPIO_INTR_POSEDGE);
 
   //create a queue to handle gpio event from isr
   gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
