@@ -50,9 +50,4 @@ void lv_disp_init() {
 void lvgl_init() {
   lv_disp_init();
   lv_port_indev_init();
-
-  // 初始化默认输入设备组
-  lv_group_t *group = lv_group_create();
-  lv_group_set_default(group);
-  lv_indev_set_group(indev_keypad, group);
 }

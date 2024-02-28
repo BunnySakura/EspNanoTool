@@ -39,8 +39,6 @@ void setup_scr_main_page(lv_ui *ui){
 	lv_obj_set_pos(ui->main_page_app_list, 0, 0);
 	lv_obj_set_size(ui->main_page_app_list, 160, 80);
 	lv_obj_set_scrollbar_mode(ui->main_page_app_list, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_scroll_snap_x(ui->main_page_app_list, LV_SCROLL_SNAP_CENTER);
-    lv_obj_set_flex_flow(ui->main_page_app_list, LV_FLEX_FLOW_ROW_REVERSE);
 
 	//Set style for main_page_app_list. Part: LV_PART_MAIN, State: LV_STATE_DEFAULT
 	lv_obj_set_style_radius(ui->main_page_app_list, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -81,7 +79,7 @@ void setup_scr_main_page(lv_ui *ui){
 	lv_obj_set_style_shadow_ofs_x(ui->main_page_app_3, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_shadow_ofs_y(ui->main_page_app_3, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_border_color(ui->main_page_app_3, lv_color_make(0x21, 0x95, 0xf6), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_border_width(ui->main_page_app_3, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_border_width(ui->main_page_app_3, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_border_opa(ui->main_page_app_3, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_left(ui->main_page_app_3, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_right(ui->main_page_app_3, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -153,7 +151,7 @@ void setup_scr_main_page(lv_ui *ui){
 	lv_obj_set_style_shadow_ofs_x(ui->main_page_app_2, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_shadow_ofs_y(ui->main_page_app_2, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_border_color(ui->main_page_app_2, lv_color_make(0x21, 0x95, 0xf6), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_border_width(ui->main_page_app_2, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_border_width(ui->main_page_app_2, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_border_opa(ui->main_page_app_2, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_left(ui->main_page_app_2, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_right(ui->main_page_app_2, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
@@ -225,7 +223,7 @@ void setup_scr_main_page(lv_ui *ui){
 	lv_obj_set_style_shadow_ofs_x(ui->main_page_app_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_shadow_ofs_y(ui->main_page_app_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_border_color(ui->main_page_app_1, lv_color_make(0x21, 0x95, 0xf6), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_border_width(ui->main_page_app_1, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_border_width(ui->main_page_app_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_border_opa(ui->main_page_app_1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_left(ui->main_page_app_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_right(ui->main_page_app_1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);

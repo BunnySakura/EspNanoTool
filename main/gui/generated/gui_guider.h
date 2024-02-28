@@ -13,39 +13,45 @@ extern "C" {
 #include "lvgl.h"
 #include "guider_fonts.h"
 
-typedef struct
-{
-	lv_obj_t *main_page;
-	bool main_page_del;
-	lv_obj_t *main_page_app_list;
-	lv_obj_t *main_page_app_3;
-	lv_obj_t *main_page_setting_app;
-	lv_obj_t *main_page_setting_app_label;
-	lv_obj_t *main_page_app_2;
-	lv_obj_t *main_page_uart_chart_app;
-	lv_obj_t *main_page_uart_chart_app_label;
-	lv_obj_t *main_page_app_1;
-	lv_obj_t *main_page_digital_clock_app;
-	lv_obj_t *setting_page;
-	bool setting_page_del;
-	lv_obj_t *setting_page_setting_menu;
-	lv_obj_t *setting_page_setting_menu_item0;
-	lv_obj_t *setting_page_setting_menu_item1;
-	lv_obj_t *setting_page_setting_menu_item2;
-	lv_obj_t *setting_page_setting_menu_item3;
-	lv_obj_t *about_page;
-	bool about_page_del;
-	lv_obj_t *about_page_about_text;
-	lv_obj_t *about_page_back_setting_btn;
-	lv_obj_t *about_page_back_setting_btn_label;
-	lv_obj_t *uart_chart_page;
-	bool uart_chart_page_del;
-	lv_obj_t *uart_chart_page_uart_chart;
-	lv_obj_t *uart_chart_page_back_main_btn;
-	lv_obj_t *uart_chart_page_back_main_btn_label;
-}lv_ui;
+typedef struct {
+  lv_group_t *main_page_group;
+  lv_obj_t *main_page;
+  bool main_page_del;
+  lv_obj_t *main_page_app_list;
+  lv_obj_t *main_page_app_3;
+  lv_obj_t *main_page_setting_app;
+  lv_obj_t *main_page_setting_app_label;
+  lv_obj_t *main_page_app_2;
+  lv_obj_t *main_page_uart_chart_app;
+  lv_obj_t *main_page_uart_chart_app_label;
+  lv_obj_t *main_page_app_1;
+  lv_obj_t *main_page_digital_clock_app;
 
-void ui_init_style(lv_style_t * style);
+  lv_group_t *setting_page_group;
+  lv_obj_t *setting_page;
+  bool setting_page_del;
+  lv_obj_t *setting_page_setting_menu;
+  lv_obj_t *setting_page_setting_menu_item0;
+  lv_obj_t *setting_page_setting_menu_item1;
+  lv_obj_t *setting_page_setting_menu_item2;
+  lv_obj_t *setting_page_setting_menu_item3;
+
+  lv_group_t *about_page_group;
+  lv_obj_t *about_page;
+  bool about_page_del;
+  lv_obj_t *about_page_about_text;
+  lv_obj_t *about_page_back_setting_btn;
+  lv_obj_t *about_page_back_setting_btn_label;
+
+  lv_group_t *uart_chart_page_group;
+  lv_obj_t *uart_chart_page;
+  bool uart_chart_page_del;
+  lv_obj_t *uart_chart_page_uart_chart;
+  lv_obj_t *uart_chart_page_back_main_btn;
+  lv_obj_t *uart_chart_page_back_main_btn_label;
+} lv_ui;
+
+void ui_init_style(lv_style_t *style);
 void init_scr_del_flag(lv_ui *ui);
 void setup_ui(lv_ui *ui);
 extern lv_ui guider_ui;
