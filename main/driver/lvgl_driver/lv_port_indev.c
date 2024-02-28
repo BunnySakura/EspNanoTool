@@ -287,18 +287,23 @@ enum {
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<kKeyUp) | (1ULL<<kKeyDown) | (1ULL<<kKeyLEFT) | (1ULL<<kKeyRight) | (1ULL<<kKeyCenter))
 #define ESP_INTR_FLAG_DEFAULT 0
 
+/**
+ * \brief GPIO中断事件
+ */
+typedef struct GpioEvt {
+  uint32_t gpio_num;          // 引脚号
+  struct timeval timestamp;   // 中断时间
+} GpioEvt;
+
 static QueueHandle_t gpio_evt_queue = NULL;
+static const size_t gpio_evt_queue_max_len = 8;
 
 static void IRAM_ATTR gpio_isr_handler(void *arg) {
-  static struct timeval current_timestamp = {0};
-  uint32_t gpio_num = (uint32_t) arg;
-  struct timeval last_timestamp = current_timestamp;
-  gettimeofday(&current_timestamp, NULL);
-  if (current_timestamp.tv_sec - last_timestamp.tv_sec > 1
-      || current_timestamp.tv_usec - last_timestamp.tv_usec > 1) {
-    // 通过时间戳过滤按键毛刺（抖动），两次间隔大于*s或*us
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
-  }
+  GpioEvt evt = {
+      .gpio_num = (uint32_t) arg
+  };
+  gettimeofday(&evt.timestamp, NULL);
+  xQueueSendFromISR(gpio_evt_queue, &evt, NULL);
 }
 
 static void GpioGlitchFilter(gpio_num_t gpio_num) {
@@ -341,7 +346,7 @@ static void keypad_init(void) {
   gpio_set_intr_type(kKeyCenter, GPIO_INTR_POSEDGE);
 
   //create a queue to handle gpio event from isr
-  gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+  gpio_evt_queue = xQueueCreate(gpio_evt_queue_max_len, sizeof(GpioEvt));
 
   //install gpio isr service
   gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
@@ -409,10 +414,18 @@ static void keypad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
 /*Get the currently being pressed key.  0 if no key is pressed*/
 static uint32_t keypad_get_key(void) {
   /*Your code comes here*/
-  uint32_t io_num;
-  if (xQueueReceive(gpio_evt_queue, &io_num, pdMS_TO_TICKS(0))) {
-    // 按键按下处于低电平视为有效
-    return io_num;
+  static struct timeval last_timestamp = {0};
+  GpioEvt evt;
+
+  if (xQueueReceive(gpio_evt_queue, &evt, pdMS_TO_TICKS(0)) == pdFALSE) {
+    return 0;
+  }
+
+  if (evt.timestamp.tv_sec - last_timestamp.tv_sec > 1
+      || evt.timestamp.tv_usec - last_timestamp.tv_usec > 10 * 1000) {
+    // 通过时间戳过滤按键毛刺（抖动），两次间隔大于*s或*us
+    last_timestamp = evt.timestamp;
+    return evt.gpio_num;
   } else {
     return 0;
   }
