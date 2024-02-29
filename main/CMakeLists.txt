@@ -1,6 +1,7 @@
 idf_component_register(
         SRCS main.c
         app/wifi_dpp.c
+        app/wifi_connect.c
         driver/lvgl_driver/lvgl_init.c
         driver/lvgl_driver/lv_port_indev.c
         driver/littlefs_init.c

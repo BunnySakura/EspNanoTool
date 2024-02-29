@@ -3,6 +3,9 @@
 //
 
 #include "lvgl.h"
+#include "esp_littlefs.h"
+#include "littlefs_init.h"
+#include "qrcode.h"
 #include "gui_qrcode.h"
 #include "wifi_dpp.h"
 
@@ -16,7 +19,6 @@
 #include "esp_dpp.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "qrcode.h"
 
 #ifdef CONFIG_ESP_DPP_LISTEN_CHANNEL
 #define EXAMPLE_DPP_LISTEN_CHANNEL_LIST     CONFIG_ESP_DPP_LISTEN_CHANNEL_LIST
@@ -109,11 +111,11 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
       } else {
         xEventGroupSetBits(s_dpp_event_group, DPP_AUTH_FAIL_BIT);
       }
+      GuiQrCodeClose(qr_code);
       break;
     }
 
     default: {
-      lv_obj_del(lv_scr_act());
       break;
     }
   }
@@ -182,8 +184,24 @@ void dpp_enrollee_init(void) {
   /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
    * happened. */
   if (bits & DPP_CONNECTED_BIT) {
-    ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-             s_dpp_wifi_config.sta.ssid, s_dpp_wifi_config.sta.password);
+    ESP_LOGI(TAG, "connected to ap SSID:%s password:%s", s_dpp_wifi_config.sta.ssid, s_dpp_wifi_config.sta.password);
+    /**
+     * \brief 二进制保存WiFi配置
+     */
+    char wifi_config_path[] = LFS_WIFI_CONFIG_PATH;
+    FILE *wifi_config = fopen(LFS_WIFI_CONFIG_PATH, "wb");
+    do {
+      if (wifi_config == NULL) {
+        ESP_LOGE(__func__, "Error opening file: %s", wifi_config_path);
+        break;
+      }
+      size_t bytes_written = fwrite(&s_dpp_wifi_config, sizeof(char), sizeof(wifi_config_t), wifi_config);
+      if (bytes_written != sizeof(wifi_config_t)) {
+        ESP_LOGE(__func__, "Error writing to file: %s", wifi_config_path);
+        break;
+      }
+    } while (false);
+    fclose(wifi_config);
   } else if (bits & DPP_CONNECT_FAIL_BIT) {
     ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
              s_dpp_wifi_config.sta.ssid, s_dpp_wifi_config.sta.password);

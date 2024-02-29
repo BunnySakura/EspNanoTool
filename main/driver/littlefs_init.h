@@ -5,7 +5,8 @@
 #ifndef ESPNANOTOOL_MAIN_DRIVER_LITTLEFS_INIT_H_
 #define ESPNANOTOOL_MAIN_DRIVER_LITTLEFS_INIT_H_
 
-#define DEFAULT_ROOT_PATH "/littlefs"
+#define LFS_DEFAULT_ROOT_PATH "/littlefs"
+#define LFS_WIFI_CONFIG_PATH LFS_DEFAULT_ROOT_PATH "/wifi_conf.bin"
 
 typedef struct DrvLittleFs DrvLittleFs;
 

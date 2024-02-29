@@ -6,12 +6,11 @@
  */
 
 #include "lvgl.h"
-#include "lvgl_helpers.h"
 #include "lvgl_driver/lv_port_indev.h"
 #include "lvgl_driver/lvgl_init.h"
 #include "littlefs_init.h"
-#include "wifi_dpp.h"
-#include "gui_qrcode.h"
+#include "esp_littlefs.h"
+#include "wifi_connect.h"
 #include "main_page.h"
 #include "gui_guider.h"
 #include "events_init.h"
@@ -23,6 +22,7 @@
 #include "esp_flash.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "esp_wifi_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -37,7 +37,7 @@
 
 lv_ui guider_ui;
 
-_Noreturn void PrintChipInfo(void *params) {
+_Noreturn void TaskPrintChipInfo(void *params) {
   (void) params;
   /* Print chip information */
   esp_chip_info_t chip_info;
@@ -82,7 +82,7 @@ _Noreturn void PrintChipInfo(void *params) {
   }
 }
 
-_Noreturn void BlinkLed(void *params) {
+_Noreturn void TaskBlinkLed(void *params) {
   (void) params;
   uint8_t level = LOW_LEVEL;
   gpio_reset_pin(LED_4);
@@ -104,9 +104,35 @@ _Noreturn void BlinkLed(void *params) {
   }
 }
 
-_Noreturn void app_main(void) {
+void TaskWifiConnect() {
+  wifi_config_t config = {};
+  /**
+   * \brief 二进制读取WiFi配置
+   */
+  char wifi_config_path[] = LFS_WIFI_CONFIG_PATH;
+  FILE *wifi_config = fopen(LFS_WIFI_CONFIG_PATH, "rb");
+  do {
+    if (wifi_config == NULL) {
+      ESP_LOGE(__func__, "Error opening file: %s", wifi_config_path);
+      break;
+    }
+    size_t bytes_written = fread(&config, sizeof(char), sizeof(wifi_config_t), wifi_config);
+    if (bytes_written != sizeof(wifi_config_t)) {
+      ESP_LOGE(__func__, "Error reading from file: %s", wifi_config_path);
+      break;
+    }
+    WifiConnect(&config);
+  } while (false);
+  fclose(wifi_config);
+
+  vTaskDelete(NULL);
+}
+
+_Noreturn void app_main() {
   DrvLittleFs *little_fs = DrvLittleFsInit();
-  DrvLittleFsMount(little_fs, DEFAULT_ROOT_PATH, "littlefs");
+  DrvLittleFsMount(little_fs, LFS_DEFAULT_ROOT_PATH, "littlefs");
+
+  xTaskCreate(TaskWifiConnect, "TaskWifiConnect", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
 
   /**
    * \brief Start LVGL.
@@ -118,7 +144,7 @@ _Noreturn void app_main(void) {
   events_init(&guider_ui);
   custom_init(&guider_ui);
 
-  xTaskCreate(PrintChipInfo, "PrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
+  xTaskCreate(TaskPrintChipInfo, "TaskPrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
 
   while (true) {
     vTaskDelay(pdMS_TO_TICKS(10));
