@@ -4,6 +4,7 @@
 
 # IDF sdkconfig
 /sdkconfig
+/sdkconfig.old
 
 # 编译中间文件
 /build/
@@ -12,3 +13,5 @@
 # CLion
 /.idea/
 
+#VS Code
+/.vscode/

@@ -10,4 +10,4 @@ else ()
     message(FATAL_ERROR "LV PORT ESP32: This must be a project's main CMakeLists.txt.")
 endif ()
 
-littlefs_create_partition_image(littlefs flash_built_in_files)
+littlefs_create_partition_image(littlefs res)

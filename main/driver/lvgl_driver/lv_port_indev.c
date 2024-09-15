@@ -268,7 +268,7 @@ void lv_port_indev_init(void) {
  * -----------------*/
 
 #include "driver/gpio.h"
-#include "driver/gpio_filter.h"
+// #include "driver/gpio_filter.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -277,14 +277,12 @@ void lv_port_indev_init(void) {
 
 // GPIO key
 enum {
-  kKeyUp = 13,
-  kKeyDown = 8,
-  kKeyLEFT = 9,
-  kKeyRight = 5,
-  kKeyCenter = 4
+  kKeyLEFT = 39,
+  kKeyRight = 37,
+  kKeyCenter = 38
 };
 
-#define GPIO_INPUT_PIN_SEL  ((1ULL<<kKeyUp) | (1ULL<<kKeyDown) | (1ULL<<kKeyLEFT) | (1ULL<<kKeyRight) | (1ULL<<kKeyCenter))
+#define GPIO_INPUT_PIN_SEL  ((1ULL<<kKeyLEFT) | (1ULL<<kKeyRight) | (1ULL<<kKeyCenter))
 #define ESP_INTR_FLAG_DEFAULT 0
 
 /**
@@ -306,14 +304,14 @@ static void IRAM_ATTR gpio_isr_handler(void *arg) {
   xQueueSendFromISR(gpio_evt_queue, &evt, NULL);
 }
 
-static void GpioGlitchFilter(gpio_num_t gpio_num) {
-  gpio_pin_glitch_filter_config_t glitch_filter_conf = {
-      .gpio_num = gpio_num
-  };
-  gpio_glitch_filter_handle_t glitch_filter_handle;
-  ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&glitch_filter_conf, &glitch_filter_handle));
-  ESP_ERROR_CHECK(gpio_glitch_filter_enable(glitch_filter_handle));
-}
+// static void GpioGlitchFilter(gpio_num_t gpio_num) {
+//   gpio_pin_glitch_filter_config_t glitch_filter_conf = {
+//       .gpio_num = gpio_num
+//   };
+//   gpio_glitch_filter_handle_t glitch_filter_handle;
+//   ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&glitch_filter_conf, &glitch_filter_handle));
+//   ESP_ERROR_CHECK(gpio_glitch_filter_enable(glitch_filter_handle));
+// }
 
 //static esp_adc_cal_characteristics_t adc1_chars;
 /*Initialize your keypad*/
@@ -332,15 +330,13 @@ static void keypad_init(void) {
   gpio_config(&io_conf);
 
   // 过滤按键抖动毛刺
-  GpioGlitchFilter(kKeyUp);
-  GpioGlitchFilter(kKeyDown);
-  GpioGlitchFilter(kKeyLEFT);
-  GpioGlitchFilter(kKeyRight);
-  GpioGlitchFilter(kKeyCenter);
+  // GpioGlitchFilter(kKeyUp);
+  // GpioGlitchFilter(kKeyDown);
+  // GpioGlitchFilter(kKeyLEFT);
+  // GpioGlitchFilter(kKeyRight);
+  // GpioGlitchFilter(kKeyCenter);
 
   //change gpio interrupt type for one pin
-  gpio_set_intr_type(kKeyUp, GPIO_INTR_POSEDGE);
-  gpio_set_intr_type(kKeyDown, GPIO_INTR_POSEDGE);
   gpio_set_intr_type(kKeyLEFT, GPIO_INTR_POSEDGE);
   gpio_set_intr_type(kKeyRight, GPIO_INTR_POSEDGE);
   gpio_set_intr_type(kKeyCenter, GPIO_INTR_POSEDGE);
@@ -351,8 +347,6 @@ static void keypad_init(void) {
   //install gpio isr service
   gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
   //hook isr handler for specific gpio pin
-  gpio_isr_handler_add(kKeyUp, gpio_isr_handler, (void *) kKeyUp);
-  gpio_isr_handler_add(kKeyDown, gpio_isr_handler, (void *) kKeyDown);
   gpio_isr_handler_add(kKeyLEFT, gpio_isr_handler, (void *) kKeyLEFT);
   gpio_isr_handler_add(kKeyRight, gpio_isr_handler, (void *) kKeyRight);
   gpio_isr_handler_add(kKeyCenter, gpio_isr_handler, (void *) kKeyCenter);
@@ -372,16 +366,6 @@ static void keypad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
 
     /*Translate the keys to LVGL control characters according to your key definitions*/
     switch (act_key) {
-      case kKeyUp: {
-        ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_UP", act_key);
-        act_key = LV_KEY_UP;
-        break;
-      }
-      case kKeyDown : {
-        ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_DOWN", act_key);
-        act_key = LV_KEY_DOWN;
-        break;
-      }
       case kKeyLEFT: {
         ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_LEFT", act_key);
         act_key = LV_KEY_LEFT;
