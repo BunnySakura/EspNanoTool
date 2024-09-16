@@ -271,82 +271,61 @@ void lv_port_indev_init(void) {
 // #include "driver/gpio_filter.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "freertos/queue.h"
+#include "freertos/task.h"
 #include "sys/time.h"
 
 // GPIO key
-enum {
-  kKeyLEFT = 39,
-  kKeyRight = 37,
-  kKeyCenter = 38
-};
+enum { kKeyLEFT = 39, kKeyRight = 37, kKeyCenter = 38 };
+enum { kNaviMode, kEditMode } key_mode;
 
-#define GPIO_INPUT_PIN_SEL  ((1ULL<<kKeyLEFT) | (1ULL<<kKeyRight) | (1ULL<<kKeyCenter))
+#define GPIO_INPUT_PIN_SEL ((1ULL << kKeyLEFT) | (1ULL << kKeyRight) | (1ULL << kKeyCenter))
 #define ESP_INTR_FLAG_DEFAULT 0
 
 /**
  * \brief GPIO中断事件
  */
 typedef struct GpioEvt {
-  uint32_t gpio_num;          // 引脚号
-  struct timeval timestamp;   // 中断时间
+    uint32_t gpio_num;        // 引脚号
+    struct timeval timestamp; // 中断时间
 } GpioEvt;
 
 static QueueHandle_t gpio_evt_queue = NULL;
 static const size_t gpio_evt_queue_max_len = 8;
 
-static void IRAM_ATTR gpio_isr_handler(void *arg) {
-  GpioEvt evt = {
-      .gpio_num = (uint32_t) arg
-  };
+static void gpio_isr_handler(void *arg) {
+  GpioEvt evt = {.gpio_num = (uint32_t) arg};
   gettimeofday(&evt.timestamp, NULL);
   xQueueSendFromISR(gpio_evt_queue, &evt, NULL);
 }
 
-// static void GpioGlitchFilter(gpio_num_t gpio_num) {
-//   gpio_pin_glitch_filter_config_t glitch_filter_conf = {
-//       .gpio_num = gpio_num
-//   };
-//   gpio_glitch_filter_handle_t glitch_filter_handle;
-//   ESP_ERROR_CHECK(gpio_new_pin_glitch_filter(&glitch_filter_conf, &glitch_filter_handle));
-//   ESP_ERROR_CHECK(gpio_glitch_filter_enable(glitch_filter_handle));
-// }
-
-//static esp_adc_cal_characteristics_t adc1_chars;
+// static esp_adc_cal_characteristics_t adc1_chars;
 /*Initialize your keypad*/
 static void keypad_init(void) {
   /*Your code comes here*/
-  //zero-initialize the config structure.
+  // zero-initialize the config structure.
   gpio_config_t io_conf = {};
-  //interrupt of falling edge
+  // interrupt of falling edge
   io_conf.intr_type = GPIO_INTR_POSEDGE;
-  //bit mask of the pins, use keypad gpio here
+  // bit mask of the pins, use keypad gpio here
   io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
-  //set as input mode
+  // set as input mode
   io_conf.mode = GPIO_MODE_INPUT;
-  //enable pull-up mode
+  // enable pull-up mode
   io_conf.pull_up_en = 1;
   gpio_config(&io_conf);
 
-  // 过滤按键抖动毛刺
-  // GpioGlitchFilter(kKeyUp);
-  // GpioGlitchFilter(kKeyDown);
-  // GpioGlitchFilter(kKeyLEFT);
-  // GpioGlitchFilter(kKeyRight);
-  // GpioGlitchFilter(kKeyCenter);
+  // change gpio interrupt type for one pin
+  // gpio_set_intr_type(kKeyLEFT, GPIO_INTR_POSEDGE);
+  // gpio_set_intr_type(kKeyRight, GPIO_INTR_POSEDGE);
+  // gpio_set_intr_type(kKeyCenter, GPIO_INTR_POSEDGE);
 
-  //change gpio interrupt type for one pin
-  gpio_set_intr_type(kKeyLEFT, GPIO_INTR_POSEDGE);
-  gpio_set_intr_type(kKeyRight, GPIO_INTR_POSEDGE);
-  gpio_set_intr_type(kKeyCenter, GPIO_INTR_POSEDGE);
-
-  //create a queue to handle gpio event from isr
+  // create a queue to handle gpio event from isr
   gpio_evt_queue = xQueueCreate(gpio_evt_queue_max_len, sizeof(GpioEvt));
 
-  //install gpio isr service
+  // install gpio isr service
   gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-  //hook isr handler for specific gpio pin
+  // hook isr handler for specific gpio pin
   gpio_isr_handler_add(kKeyLEFT, gpio_isr_handler, (void *) kKeyLEFT);
   gpio_isr_handler_add(kKeyRight, gpio_isr_handler, (void *) kKeyRight);
   gpio_isr_handler_add(kKeyCenter, gpio_isr_handler, (void *) kKeyCenter);
@@ -368,12 +347,12 @@ static void keypad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
     switch (act_key) {
       case kKeyLEFT: {
         ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_LEFT", act_key);
-        act_key = LV_KEY_LEFT;
+        act_key = key_mode == kNaviMode ? LV_KEY_PREV : LV_KEY_LEFT;
         break;
       }
       case kKeyRight: {
         ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_RIGHT", act_key);
-        act_key = LV_KEY_RIGHT;
+        act_key = key_mode == kNaviMode ? LV_KEY_NEXT : LV_KEY_RIGHT;
         break;
       }
       case kKeyCenter: {
@@ -398,21 +377,29 @@ static void keypad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
 /*Get the currently being pressed key.  0 if no key is pressed*/
 static uint32_t keypad_get_key(void) {
   /*Your code comes here*/
-  static struct timeval last_timestamp = {0};
+  static GpioEvt last_evt = {0};
   GpioEvt evt;
 
   if (xQueueReceive(gpio_evt_queue, &evt, pdMS_TO_TICKS(0)) == pdFALSE) {
     return 0;
   }
 
-  if (evt.timestamp.tv_sec - last_timestamp.tv_sec > 1
-      || evt.timestamp.tv_usec - last_timestamp.tv_usec > 10 * 1000) {
-    // 通过时间戳过滤按键毛刺（抖动），两次间隔大于*s或*us
-    last_timestamp = evt.timestamp;
-    return evt.gpio_num;
-  } else {
+  time_t last_time_us = last_evt.timestamp.tv_sec * 1000 * 1000 + last_evt.timestamp.tv_usec;
+  time_t current_time_us = evt.timestamp.tv_sec * 1000 * 1000 + evt.timestamp.tv_usec;
+  time_t time_interval = current_time_us - last_time_us;
+  if (evt.gpio_num == last_evt.gpio_num && time_interval < 10 * 1000) {
+    // 触发的按键GPIO引脚相同且时间极短，则进行消抖
     return 0;
   }
+
+  if (evt.gpio_num == last_evt.gpio_num && evt.gpio_num == kKeyCenter && time_interval < 200 * 1000) {
+    // 双击中键切换编辑和导航模式
+    key_mode = key_mode == kNaviMode ? kEditMode : kNaviMode;
+    ESP_LOGI(__func__, "Key mode switch to: %s", key_mode == kNaviMode ? "Navi Mode" : "Edit Mode");
+  }
+
+  last_evt = evt;
+  return evt.gpio_num;
 }
 
 /*------------------
