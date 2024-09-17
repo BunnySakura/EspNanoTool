@@ -11,10 +11,9 @@
 #include "littlefs_init.h"
 #include "esp_littlefs.h"
 #include "wifi_connect.h"
-#include "main_page.h"
+#include "custom.h"
 #include "gui_guider.h"
 #include "events_init.h"
-#include "custom.h"
 
 #include "driver/gpio.h"
 #include "sdkconfig.h"
@@ -140,9 +139,9 @@ _Noreturn void app_main() {
   lvgl_init();
 
   /*Create a GUI-Guider app */
+  custom_init(&guider_ui);
   setup_ui(&guider_ui);
   events_init(&guider_ui);
-  custom_init(&guider_ui);
 
   xTaskCreate(TaskPrintChipInfo, "TaskPrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
 

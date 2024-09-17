@@ -1,8 +1,11 @@
 /*
- * Copyright 2024 NXP
- * SPDX-License-Identifier: MIT
- * The auto-generated can only be used on NXP devices
- */
+* Copyright 2024 NXP
+* NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be used strictly in
+* accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
+* activating and/or otherwise using the software, you are agreeing that you have read, and that you agree to
+* comply with and are bound by, such license terms.  If you do not agree to be bound by the applicable license
+* terms, then you may not retain, install, activate or otherwise use the software.
+*/
 
 #ifndef GUI_GUIDER_H
 #define GUI_GUIDER_H
@@ -11,58 +14,61 @@ extern "C" {
 #endif
 
 #include "lvgl.h"
-#include "guider_fonts.h"
 
-typedef struct {
-  lv_group_t *main_page_group;
-  lv_obj_t *main_page;
-  bool main_page_del;
-  lv_obj_t *main_page_app_list;
-  lv_obj_t *main_page_app_3;
-  lv_obj_t *main_page_setting_app;
-  lv_obj_t *main_page_setting_app_label;
-  lv_obj_t *main_page_app_2;
-  lv_obj_t *main_page_uart_chart_app;
-  lv_obj_t *main_page_uart_chart_app_label;
-  lv_obj_t *main_page_app_1;
-  lv_obj_t *main_page_digital_clock_app;
+typedef struct
+{
+  
+	lv_obj_t *page_main;
+	bool page_main_del;
+	lv_obj_t *page_main_footer;
+	lv_obj_t *page_main_header;
+	lv_obj_t *page_main_app_cont;
+	lv_obj_t *page_main_app_cont_first;
+	lv_obj_t *page_main_app_cont_ele1;
+	lv_obj_t *page_main_app_cont_ele2;
+	lv_obj_t *page_main_app_cont_ele3;
+	lv_obj_t *page_main_app_cont_last;
+	lv_obj_t *page_main_btn_1;
+	lv_obj_t *page_main_btn_1_label;
+	lv_obj_t *page_main_btn_2;
+	lv_obj_t *page_main_btn_2_label;
+	lv_obj_t *page_main_btn_3;
+	lv_obj_t *page_main_btn_3_label;
+	lv_obj_t *page_setting;
+	bool page_setting_del;
+	lv_obj_t *page_setting_list_1;
+	lv_obj_t *page_setting_list_1_item0;
+	lv_obj_t *page_setting_list_1_item1;
+	lv_obj_t *page_setting_list_1_item2;
+}lv_ui;
 
-  lv_group_t *setting_page_group;
-  lv_obj_t *setting_page;
-  bool setting_page_del;
-  lv_obj_t *setting_page_setting_menu;
-  lv_obj_t *setting_page_setting_menu_item0;
-  lv_obj_t *setting_page_setting_menu_item1;
-  lv_obj_t *setting_page_setting_menu_item2;
-  lv_obj_t *setting_page_setting_menu_item3;
+typedef void (*ui_setup_scr_t)(lv_ui * ui);
 
-  lv_group_t *about_page_group;
-  lv_obj_t *about_page;
-  bool about_page_del;
-  lv_obj_t *about_page_about_text;
-  lv_obj_t *about_page_back_setting_btn;
-  lv_obj_t *about_page_back_setting_btn_label;
+void ui_init_style(lv_style_t * style);
 
-  lv_group_t *uart_chart_page_group;
-  lv_obj_t *uart_chart_page;
-  bool uart_chart_page_del;
-  lv_obj_t *uart_chart_page_uart_chart;
-  lv_obj_t *uart_chart_page_back_main_btn;
-  lv_obj_t *uart_chart_page_back_main_btn_label;
-} lv_ui;
+void ui_load_scr_animation(lv_ui *ui, lv_obj_t ** new_scr, bool new_scr_del, bool * old_scr_del, ui_setup_scr_t setup_scr,
+                           lv_scr_load_anim_t anim_type, uint32_t time, uint32_t delay, bool is_clean, bool auto_del);
 
-void ui_init_style(lv_style_t *style);
+void ui_animation(void * var, int32_t duration, int32_t delay, int32_t start_value, int32_t end_value, lv_anim_path_cb_t path_cb,
+                       uint16_t repeat_cnt, uint32_t repeat_delay, uint32_t playback_time, uint32_t playback_delay,
+                       lv_anim_exec_xcb_t exec_cb, lv_anim_start_cb_t start_cb, lv_anim_ready_cb_t ready_cb, lv_anim_deleted_cb_t deleted_cb);
+
+
 void init_scr_del_flag(lv_ui *ui);
+
 void setup_ui(lv_ui *ui);
+
+
 extern lv_ui guider_ui;
-void setup_scr_main_page(lv_ui *ui);
-void setup_scr_setting_page(lv_ui *ui);
-void setup_scr_about_page(lv_ui *ui);
-void setup_scr_uart_chart_page(lv_ui *ui);
-LV_IMG_DECLARE(_uart_press_alpha_60x60);
-LV_IMG_DECLARE(_setting_alpha_60x60);
-LV_IMG_DECLARE(_uart_alpha_60x60);
-LV_IMG_DECLARE(_setting_press_alpha_60x60);
+
+
+void setup_scr_page_main(lv_ui *ui);
+void setup_scr_page_setting(lv_ui *ui);
+
+LV_FONT_DECLARE(lv_font_LXGWWenKaiRegular_16)
+LV_FONT_DECLARE(lv_font_montserratMedium_16)
+LV_FONT_DECLARE(lv_font_montserratMedium_12)
+
 
 #ifdef __cplusplus
 }

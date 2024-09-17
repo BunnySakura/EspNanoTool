@@ -1,5 +1,5 @@
 /*
-* Copyright 2023 NXP
+* Copyright 2024 NXP
 * NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be used strictly in
 * accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
 * activating and/or otherwise using the software, you are agreeing that you have read, and that you agree to
@@ -7,36 +7,24 @@
 * terms, then you may not retain, install, activate or otherwise use the software.
 */
 
-/*
- * lv_conf_ext.h for custom lvconf file.
- * Created on: Feb 8, 2023
- * example :
- *	#undef LV_FONT_FMT_TXT_LARGE
- *  #define LV_FONT_FMT_TXT_LARGE 1
- */
+#ifndef WIDGET_INIT_H
+#define WIDGET_INIT_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifndef LV_CONF_EXT_H
-#define LV_CONF_EXT_H
+#include "lvgl.h"
+#include "gui_guider.h"
 
-
-/* common code  begin  */
-
-
-/* common code end */
-
-
-#if LV_USE_GUIDER_SIMULATOR
-/* code for simulator begin  */
-
-
-/* code for simulator end */
-#else
-/* code for board begin */
-
-
-/* code for board end */	
+__attribute__((unused)) void kb_event_cb(lv_event_t *e);
+__attribute__((unused)) void ta_event_cb(lv_event_t *e);
+#if LV_USE_ANALOGCLOCK != 0
+void clock_count(int *hour, int *min, int *sec);
 #endif
 
 
 
-#endif  /* LV_CONF_EXT_H */	
+#ifdef __cplusplus
+}
+#endif
+#endif

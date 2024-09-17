@@ -1,10 +1,12 @@
-// SPDX-License-Identifier: MIT
-// Copyright 2020 NXP
+/*
+* Copyright 2023 NXP
+* NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be used strictly in
+* accordance with the applicable license terms. By expressly accepting such terms or by downloading, installing,
+* activating and/or otherwise using the software, you are agreeing that you have read, and that you agree to
+* comply with and are bound by, such license terms.  If you do not agree to be bound by the applicable license
+* terms, then you may not retain, install, activate or otherwise use the software.
+*/
 
-/**
- * @file custom.c
- *
- */
 
 /*********************
  *      INCLUDES
@@ -28,19 +30,21 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
+#ifndef LV_USE_GUIDER_SIMULATOR
+extern lv_indev_t *indev_keypad;
+#endif
 
 /**
  * Create a demo application
  */
 
-void custom_init(lv_ui *ui) {
-  /* Add your codes here */
-
-  /*
-   * 主界面添加滚动
-   */
-  lv_obj_set_scroll_snap_x(ui->main_page_app_list, LV_SCROLL_SNAP_CENTER);
-  lv_obj_set_flex_flow(ui->main_page_app_list, LV_FLEX_FLOW_ROW_REVERSE);
-  lv_obj_update_snap(ui->main_page_app_list, LV_ANIM_ON);
+void custom_init(lv_ui *ui)
+{
+    /* Add your codes here */
+#ifndef LV_USE_GUIDER_SIMULATOR
+    lv_group_t * default_grp = lv_group_create();
+    lv_group_set_default(default_grp);
+    lv_indev_set_group(indev_keypad, default_grp);
+#endif
 }
 
