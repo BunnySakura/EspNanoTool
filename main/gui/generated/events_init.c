@@ -16,9 +16,14 @@
 #endif
 
 #ifndef LV_USE_GUIDER_SIMULATOR
-#include "esp_log.h"
+#include "common.h"
 #endif
+#ifndef LV_USE_GUIDER_SIMULATOR
 #include "wifi_dpp.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+extern char wifi_dpp_qr_data[256];
+#endif
 
 static void page_main_btn_1_event_handler (lv_event_t *e)
 {
@@ -75,7 +80,17 @@ static void page_setting_list_1_item2_event_handler (lv_event_t *e)
     switch (code) {
 	case LV_EVENT_CLICKED:
 	{
-		DppEnrolleeMain();
+		#ifndef LV_USE_GUIDER_SIMULATOR
+		    xTaskCreate(DppEnrolleeMain, "DppEnrolleeMain", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
+		    vTaskDelay(1000 / portTICK_PERIOD_MS);
+			lv_qrcode_update(guider_ui.page_setting_qrcode_1, wifi_dpp_qr_data, strlen(wifi_dpp_qr_data));
+		#endif
+		lv_obj_clear_flag(guider_ui.page_setting_qrcode_1, LV_OBJ_FLAG_HIDDEN);
+		break;
+	}
+	case LV_EVENT_DEFOCUSED:
+	{
+		lv_obj_add_flag(guider_ui.page_setting_qrcode_1, LV_OBJ_FLAG_HIDDEN);
 		break;
 	}
     default:

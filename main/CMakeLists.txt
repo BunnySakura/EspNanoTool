@@ -5,7 +5,6 @@ idf_component_register(
         driver/lvgl_driver/lvgl_init.c
         driver/lvgl_driver/lv_port_indev.c
         driver/littlefs_init.c
-        gui/gui_qrcode.c
         gui/custom/custom.c
         gui/carousel/lv_carousel.c
         gui/dclock/lv_dclock.c
@@ -25,7 +24,9 @@ idf_component_register(
         gui/generated/guider_fonts/lv_font_montserratMedium_25.c
         
 
-        INCLUDE_DIRS app/
+        INCLUDE_DIRS 
+        ./
+        app/
         driver/
         gui/
         gui/carousel

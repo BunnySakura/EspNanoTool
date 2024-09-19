@@ -2,49 +2,49 @@
 // Created by hello3rd on 24-1-31.
 //
 
-#include "lvgl.h"
+#include "wifi_dpp.h"
+#include "common.h"
 #include "esp_littlefs.h"
 #include "littlefs_init.h"
+#include "lvgl.h"
 #include "qrcode.h"
-#include "gui_qrcode.h"
-#include "wifi_dpp.h"
 
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
+#include "esp_dpp.h"
+#include "esp_event.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_dpp.h"
-#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
+#include "freertos/task.h"
 #include "nvs_flash.h"
+#include <string.h>
 
 #ifdef CONFIG_ESP_DPP_LISTEN_CHANNEL
-#define EXAMPLE_DPP_LISTEN_CHANNEL_LIST     CONFIG_ESP_DPP_LISTEN_CHANNEL_LIST
+#define EXAMPLE_DPP_LISTEN_CHANNEL_LIST CONFIG_ESP_DPP_LISTEN_CHANNEL_LIST
 #else
-#define EXAMPLE_DPP_LISTEN_CHANNEL_LIST     "6"
+#define EXAMPLE_DPP_LISTEN_CHANNEL_LIST "6"
 #endif
 
 #ifdef CONFIG_ESP_DPP_BOOTSTRAPPING_KEY
-#define EXAMPLE_DPP_BOOTSTRAPPING_KEY   CONFIG_ESP_DPP_BOOTSTRAPPING_KEY
+#define EXAMPLE_DPP_BOOTSTRAPPING_KEY CONFIG_ESP_DPP_BOOTSTRAPPING_KEY
 #else
-#define EXAMPLE_DPP_BOOTSTRAPPING_KEY   0
+#define EXAMPLE_DPP_BOOTSTRAPPING_KEY 0
 #endif
 
 #ifdef CONFIG_ESP_DPP_DEVICE_INFO
-#define EXAMPLE_DPP_DEVICE_INFO      CONFIG_ESP_DPP_DEVICE_INFO
+#define EXAMPLE_DPP_DEVICE_INFO CONFIG_ESP_DPP_DEVICE_INFO
 #else
-#define EXAMPLE_DPP_DEVICE_INFO      0
+#define EXAMPLE_DPP_DEVICE_INFO 0
 #endif
 
-#define CURVE_SEC256R1_PKEY_HEX_DIGITS     64
+#define CURVE_SEC256R1_PKEY_HEX_DIGITS 64
 
 #define DPP_CONNECTED_BIT BIT0
 #define DPP_CONNECT_FAIL_BIT BIT1
 #define DPP_AUTH_FAIL_BIT BIT2
 
-static const char *TAG = "wifi dpp-enrollee";
+char wifi_dpp_qr_data[256]; // 保存WiFi DPP 配网数据，用于显示二维码
+
 static wifi_config_t s_dpp_wifi_config;
 
 static int s_retry_num = 0;
@@ -52,42 +52,36 @@ static int s_retry_num = 0;
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_dpp_event_group;
 
-static void event_handler(void *arg, esp_event_base_t event_base,
-                          int32_t event_id, void *event_data) {
+static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
   if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
     ESP_ERROR_CHECK(esp_supp_dpp_start_listen());
-    ESP_LOGI(TAG, "Started listening for DPP Authentication");
+    ESP_LOGI(ESP_LOG_TAG, "Started listening for DPP Authentication");
   } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
     if (s_retry_num < 5) {
       esp_wifi_connect();
       s_retry_num++;
-      ESP_LOGI(TAG, "retry to connect to the AP");
+      ESP_LOGI(ESP_LOG_TAG, "retry to connect to the AP");
     } else {
       xEventGroupSetBits(s_dpp_event_group, DPP_CONNECT_FAIL_BIT);
     }
-    ESP_LOGI(TAG, "connect to the AP fail");
+    ESP_LOGI(ESP_LOG_TAG, "connect to the AP fail");
   } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
     ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
-    ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+    ESP_LOGI(ESP_LOG_TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
     s_retry_num = 0;
     xEventGroupSetBits(s_dpp_event_group, DPP_CONNECTED_BIT);
   }
 }
 
 void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
-  static GuiQrCode *qr_code = NULL;
-  if (!qr_code) {
-    qr_code = GuiQrCodeInit();
-  }
-
   switch (event) {
     case ESP_SUPP_DPP_URI_READY: {
       if (data != NULL) {
-        esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
-
-        ESP_LOGI(TAG, "Scan below QR Code to configure the enrollee:\n");
-        GuiQrCodeShow(qr_code, (const char *) data); /// \note `esp_qrcode_generate`调用会修改数据，需要先于该调用进行显示
-        esp_qrcode_generate(&cfg, (const char *) data);
+        ESP_LOGI(ESP_LOG_TAG, "Scan below QR Code to configure the enrollee:\n");
+        memset(wifi_dpp_qr_data, 0, sizeof(wifi_dpp_qr_data));
+        strcpy(wifi_dpp_qr_data, (const char *) data);
+        // esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
+        // esp_qrcode_generate(&cfg, (const char *) data); // esp_qrcode_generate 调用会修改数据
       }
       break;
     }
@@ -95,23 +89,20 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data) {
     case ESP_SUPP_DPP_CFG_RECVD: {
       memcpy(&s_dpp_wifi_config, data, sizeof(s_dpp_wifi_config));
       esp_wifi_set_config(ESP_IF_WIFI_STA, &s_dpp_wifi_config);
-      ESP_LOGI(TAG, "DPP Authentication successful, connecting to AP : %s",
-               s_dpp_wifi_config.sta.ssid);
+      ESP_LOGI(ESP_LOG_TAG, "DPP Authentication successful, connecting to AP : %s", s_dpp_wifi_config.sta.ssid);
       s_retry_num = 0;
       esp_wifi_connect();
-      GuiQrCodeClose(qr_code);
       break;
     }
 
     case ESP_SUPP_DPP_FAIL: {
       if (s_retry_num < 5) {
-        ESP_LOGI(TAG, "DPP Auth failed (Reason: %s), retry...", esp_err_to_name((int) data));
+        ESP_LOGI(ESP_LOG_TAG, "DPP Auth failed (Reason: %s), retry...", esp_err_to_name((int) data));
         ESP_ERROR_CHECK(esp_supp_dpp_start_listen());
         s_retry_num++;
       } else {
         xEventGroupSetBits(s_dpp_event_group, DPP_AUTH_FAIL_BIT);
       }
-      GuiQrCodeClose(qr_code);
       break;
     }
 
@@ -132,24 +123,23 @@ esp_err_t dpp_enrollee_bootstrap(void) {
     char postfix[] = "a00a06082a8648ce3d030107";
 
     if (pkey_len != CURVE_SEC256R1_PKEY_HEX_DIGITS) {
-      ESP_LOGI(TAG, "Invalid key length! Private key needs to be 32 bytes (or 64 hex digits) long");
+      ESP_LOGI(ESP_LOG_TAG, "Invalid key length! Private key needs to be 32 bytes (or 64 hex digits) long");
       return ESP_FAIL;
     }
 
     key = malloc(sizeof(prefix) + pkey_len + sizeof(postfix));
     if (!key) {
-      ESP_LOGI(TAG, "Failed to allocate for bootstrapping key");
+      ESP_LOGI(ESP_LOG_TAG, "Failed to allocate for bootstrapping key");
       return ESP_ERR_NO_MEM;
     }
     sprintf(key, "%s%s%s", prefix, EXAMPLE_DPP_BOOTSTRAPPING_KEY, postfix);
   }
 
   /* Currently only supported method is QR Code */
-  ret = esp_supp_dpp_bootstrap_gen(EXAMPLE_DPP_LISTEN_CHANNEL_LIST, DPP_BOOTSTRAP_QR_CODE,
-                                   key, EXAMPLE_DPP_DEVICE_INFO);
+  ret =
+      esp_supp_dpp_bootstrap_gen(EXAMPLE_DPP_LISTEN_CHANNEL_LIST, DPP_BOOTSTRAP_QR_CODE, key, EXAMPLE_DPP_DEVICE_INFO);
 
-  if (key)
-    free(key);
+  if (key) free(key);
 
   return ret;
 }
@@ -175,16 +165,16 @@ void dpp_enrollee_init(void) {
 
   /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
    * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
-  EventBits_t bits = xEventGroupWaitBits(s_dpp_event_group,
-                                         DPP_CONNECTED_BIT | DPP_CONNECT_FAIL_BIT | DPP_AUTH_FAIL_BIT,
-                                         pdFALSE,
-                                         pdFALSE,
-                                         portMAX_DELAY);
+  EventBits_t bits = xEventGroupWaitBits(
+      s_dpp_event_group, DPP_CONNECTED_BIT | DPP_CONNECT_FAIL_BIT | DPP_AUTH_FAIL_BIT, pdFALSE, pdFALSE, portMAX_DELAY
+  );
 
   /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
    * happened. */
   if (bits & DPP_CONNECTED_BIT) {
-    ESP_LOGI(TAG, "connected to ap SSID:%s password:%s", s_dpp_wifi_config.sta.ssid, s_dpp_wifi_config.sta.password);
+    ESP_LOGI(
+        ESP_LOG_TAG, "connected to ap SSID:%s password:%s", s_dpp_wifi_config.sta.ssid, s_dpp_wifi_config.sta.password
+    );
     /**
      * \brief 二进制保存WiFi配置
      */
@@ -192,23 +182,25 @@ void dpp_enrollee_init(void) {
     FILE *wifi_config = fopen(LFS_WIFI_CONFIG_PATH, "wb");
     do {
       if (wifi_config == NULL) {
-        ESP_LOGE(__func__, "Error opening file: %s", wifi_config_path);
+        ESP_LOGE(ESP_LOG_TAG, "Error opening file: %s", wifi_config_path);
         break;
       }
       size_t bytes_written = fwrite(&s_dpp_wifi_config, sizeof(char), sizeof(wifi_config_t), wifi_config);
       if (bytes_written != sizeof(wifi_config_t)) {
-        ESP_LOGE(__func__, "Error writing to file: %s", wifi_config_path);
+        ESP_LOGE(ESP_LOG_TAG, "Error writing to file: %s", wifi_config_path);
         break;
       }
     } while (false);
     fclose(wifi_config);
   } else if (bits & DPP_CONNECT_FAIL_BIT) {
-    ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-             s_dpp_wifi_config.sta.ssid, s_dpp_wifi_config.sta.password);
+    ESP_LOGI(
+        ESP_LOG_TAG, "Failed to connect to SSID:%s, password:%s", s_dpp_wifi_config.sta.ssid,
+        s_dpp_wifi_config.sta.password
+    );
   } else if (bits & DPP_AUTH_FAIL_BIT) {
-    ESP_LOGI(TAG, "DPP Authentication failed after %d retries", s_retry_num);
+    ESP_LOGI(ESP_LOG_TAG, "DPP Authentication failed after %d retries", s_retry_num);
   } else {
-    ESP_LOGE(TAG, "UNEXPECTED EVENT");
+    ESP_LOGE(ESP_LOG_TAG, "UNEXPECTED EVENT");
   }
 
   esp_supp_dpp_deinit();
@@ -218,23 +210,19 @@ void dpp_enrollee_init(void) {
 }
 
 void DppEnrolleeMain() {
-  //初始化 NVS 用于 Wi-Fi Easy Connect
+  // 初始化 NVS 用于 Wi-Fi Easy Connect
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
     ESP_ERROR_CHECK(nvs_flash_erase());
-    ret = nvs_flash_init();
+    ESP_ERROR_CHECK(nvs_flash_init());
   }
-  ESP_ERROR_CHECK(ret);
 
   dpp_enrollee_init();
+  ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE)); // 关闭WiFi省电以避免干扰 GPIO39 上的按键
 
-  while (true) {
-    // 任务禁止主动返回
-    if (s_retry_num == 0) {
-      ESP_LOGI(__func__, "Task delete.");
-      vTaskDelete(NULL);
-    } else {
-      vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-  }
+  do {
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  } while (s_retry_num);
+  ESP_LOGI(ESP_LOG_TAG, "Task delete.");
+  vTaskDelete(NULL);
 }

@@ -5,6 +5,6 @@
 #ifndef ESPNANOTOOL_MAIN_APP_WIFI_DPP_H_
 #define ESPNANOTOOL_MAIN_APP_WIFI_DPP_H_
 
-_Noreturn void DppEnrolleeMain();
+void DppEnrolleeMain();
 
 #endif // ESPNANOTOOL_MAIN_APP_WIFI_DPP_H_

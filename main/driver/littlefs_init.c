@@ -6,14 +6,13 @@
  * \example https://github.com/wreyford/demo_esp_littlefs
  */
 
+#include "littlefs_init.h"
+#include "common.h"
+
 #include "esp_littlefs.h"
 
-#include "littlefs_init.h"
-
-#include "esp_log.h"
-
 struct DrvLittleFs {
-  esp_vfs_littlefs_conf_t *lfs_conf_;
+    esp_vfs_littlefs_conf_t *lfs_conf_;
 };
 
 void DrvLittleFsMount(DrvLittleFs *this, const char *root, const char *partition) {
@@ -28,11 +27,11 @@ void DrvLittleFsMount(DrvLittleFs *this, const char *root, const char *partition
 
   if (ret != ESP_OK) {
     if (ret == ESP_FAIL) {
-      ESP_LOGE(__func__, "Failed to mount or format filesystem");
+      ESP_LOGE(ESP_LOG_TAG, "Failed to mount or format filesystem");
     } else if (ret == ESP_ERR_NOT_FOUND) {
-      ESP_LOGE(__func__, "Failed to find LittleFS partition");
+      ESP_LOGE(ESP_LOG_TAG, "Failed to find LittleFS partition");
     } else {
-      ESP_LOGE(__func__, "Failed to initialize LittleFS (%s)", esp_err_to_name(ret));
+      ESP_LOGE(ESP_LOG_TAG, "Failed to initialize LittleFS (%s)", esp_err_to_name(ret));
     }
     return;
   }
@@ -40,16 +39,16 @@ void DrvLittleFsMount(DrvLittleFs *this, const char *root, const char *partition
   size_t total = 0, used = 0;
   ret = esp_littlefs_info(this->lfs_conf_->partition_label, &total, &used);
   if (ret != ESP_OK) {
-    ESP_LOGE(__func__, "Failed to get LittleFS partition information (%s)", esp_err_to_name(ret));
+    ESP_LOGE(ESP_LOG_TAG, "Failed to get LittleFS partition information (%s)", esp_err_to_name(ret));
   } else {
-    ESP_LOGI(__func__, "Partition size: total: %d, used: %d", total, used);
+    ESP_LOGI(ESP_LOG_TAG, "Partition size: total: %d, used: %d", total, used);
   }
 }
 
 void DrvLittleFsUnmount(DrvLittleFs *this) {
   // All done, unmount partition and disable LittleFS
   esp_vfs_littlefs_unregister(this->lfs_conf_->partition_label);
-  ESP_LOGI(__func__, "LittleFS unmounted");
+  ESP_LOGI(ESP_LOG_TAG, "LittleFS unmounted");
 }
 
 DrvLittleFs *DrvLittleFsInit() {

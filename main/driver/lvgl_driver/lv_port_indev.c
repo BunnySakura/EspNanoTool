@@ -266,10 +266,9 @@ void lv_port_indev_init(void) {
 /*------------------
  * Keypad
  * -----------------*/
+#include "common.h"
 
 #include "driver/gpio.h"
-// #include "driver/gpio_filter.h"
-#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -346,22 +345,22 @@ static void keypad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
     /*Translate the keys to LVGL control characters according to your key definitions*/
     switch (act_key) {
       case kKeyLEFT: {
-        ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_LEFT", act_key);
+        ESP_LOGI(ESP_LOG_TAG, "Pressed key %s gpio: %lu.", "LV_KEY_LEFT", act_key);
         act_key = key_mode == kNaviMode ? LV_KEY_PREV : LV_KEY_LEFT;
         break;
       }
       case kKeyRight: {
-        ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_RIGHT", act_key);
+        ESP_LOGI(ESP_LOG_TAG, "Pressed key %s gpio: %lu.", "LV_KEY_RIGHT", act_key);
         act_key = key_mode == kNaviMode ? LV_KEY_NEXT : LV_KEY_RIGHT;
         break;
       }
       case kKeyCenter: {
-        ESP_LOGI(__func__, "Pressed key %s gpio: %lu.", "LV_KEY_ENTER", act_key);
+        ESP_LOGI(ESP_LOG_TAG, "Pressed key %s gpio: %lu.", "LV_KEY_ENTER", act_key);
         act_key = LV_KEY_ENTER;
         break;
       }
       default: {
-        ESP_LOGW(__func__, "Pressed invalid key gpio: %lu.", act_key);
+        ESP_LOGW(ESP_LOG_TAG, "Pressed invalid key gpio: %lu.", act_key);
         break;
       }
     }
@@ -395,7 +394,8 @@ static uint32_t keypad_get_key(void) {
   if (evt.gpio_num == last_evt.gpio_num && evt.gpio_num == kKeyCenter && time_interval < 200 * 1000) {
     // 双击中键切换编辑和导航模式
     key_mode = key_mode == kNaviMode ? kEditMode : kNaviMode;
-    ESP_LOGI(__func__, "Key mode switch to: %s", key_mode == kNaviMode ? "Navi Mode" : "Edit Mode");
+    ESP_LOGI(ESP_LOG_TAG, "Key mode switch to: %s", key_mode == kNaviMode ? "Navi Mode" : "Edit Mode");
+    return 0; // 如果是双击，则第二次不视为按键，避免重复触发
   }
 
   last_evt = evt;

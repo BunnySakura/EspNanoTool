@@ -40,6 +40,7 @@ typedef struct
 	lv_obj_t *page_setting_list_1_item0;
 	lv_obj_t *page_setting_list_1_item1;
 	lv_obj_t *page_setting_list_1_item2;
+	lv_obj_t *page_setting_qrcode_1;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);

@@ -102,6 +102,14 @@ void setup_scr_page_setting(lv_ui *ui)
 	lv_style_set_bg_color(&style_page_setting_list_1_extra_texts_main_default, lv_color_hex(0xffffff));
 	lv_style_set_bg_grad_dir(&style_page_setting_list_1_extra_texts_main_default, LV_GRAD_DIR_NONE);
 
+	//Write codes page_setting_qrcode_1
+	ui->page_setting_qrcode_1 = lv_qrcode_create(ui->page_setting, 160, lv_color_hex(0x2C3224), lv_color_hex(0xffffff));
+	const char * page_setting_qrcode_1_data = "";
+	lv_qrcode_update(ui->page_setting_qrcode_1, page_setting_qrcode_1_data, strlen(page_setting_qrcode_1_data));
+	lv_obj_set_pos(ui->page_setting_qrcode_1, 80, 40);
+	lv_obj_set_size(ui->page_setting_qrcode_1, 160, 160);
+	lv_obj_add_flag(ui->page_setting_qrcode_1, LV_OBJ_FLAG_HIDDEN);
+
 	//The custom code of page_setting.
 	#ifndef LV_USE_GUIDER_SIMULATOR
     lv_group_remove_all_objs(lv_group_get_default());
