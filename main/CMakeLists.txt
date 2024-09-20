@@ -4,7 +4,7 @@ idf_component_register(
         app/wifi_connect.c
         driver/lvgl_driver/lvgl_init.c
         driver/lvgl_driver/lv_port_indev.c
-        driver/littlefs_init.c
+        driver/littlefs_drv.c
         gui/custom/custom.c
         gui/carousel/lv_carousel.c
         gui/dclock/lv_dclock.c

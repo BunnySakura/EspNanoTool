@@ -81,7 +81,7 @@ static void page_setting_list_1_item2_event_handler (lv_event_t *e)
 	case LV_EVENT_CLICKED:
 	{
 		#ifndef LV_USE_GUIDER_SIMULATOR
-		    xTaskCreate(DppEnrolleeMain, "DppEnrolleeMain", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
+		    TaskDppEnrollee();
 		    vTaskDelay(1000 / portTICK_PERIOD_MS);
 			lv_qrcode_update(guider_ui.page_setting_qrcode_1, wifi_dpp_qr_data, strlen(wifi_dpp_qr_data));
 		#endif

@@ -6,16 +6,16 @@
  * \example https://github.com/wreyford/demo_esp_littlefs
  */
 
-#include "littlefs_init.h"
+#include "littlefs_drv.h"
 #include "common.h"
 
 #include "esp_littlefs.h"
 
-struct DrvLittleFs {
+struct LittleFs_ {
     esp_vfs_littlefs_conf_t *lfs_conf_;
 };
 
-void DrvLittleFsMount(DrvLittleFs *this, const char *root, const char *partition) {
+void LittleFsMount(LittleFs *this, const char *root, const char *partition) {
   this->lfs_conf_->base_path = root;
   this->lfs_conf_->partition_label = partition;
   this->lfs_conf_->format_if_mount_failed = true;
@@ -45,19 +45,19 @@ void DrvLittleFsMount(DrvLittleFs *this, const char *root, const char *partition
   }
 }
 
-void DrvLittleFsUnmount(DrvLittleFs *this) {
+void LittleFsUnmount(LittleFs *this) {
   // All done, unmount partition and disable LittleFS
   esp_vfs_littlefs_unregister(this->lfs_conf_->partition_label);
   ESP_LOGI(ESP_LOG_TAG, "LittleFS unmounted");
 }
 
-DrvLittleFs *DrvLittleFsInit() {
-  DrvLittleFs *this = malloc(sizeof(DrvLittleFs));
+LittleFs *LittleFsInit() {
+  LittleFs *this = malloc(sizeof(LittleFs));
   this->lfs_conf_ = malloc(sizeof(esp_vfs_littlefs_conf_t));
   return this;
 }
 
-void DrvLittleFsDel(DrvLittleFs *this) {
+void LittleFsDel(LittleFs *this) {
   if (this->lfs_conf_) {
     free(this->lfs_conf_);
   }

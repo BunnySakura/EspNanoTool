@@ -5,8 +5,6 @@
 #ifndef ESPNANOTOOL_MAIN_APP_WIFI_CONNECT_H_
 #define ESPNANOTOOL_MAIN_APP_WIFI_CONNECT_H_
 
-#include "esp_wifi_types.h"
-
-void WifiConnect(const wifi_config_t *config);
+void TaskWifiConnect();
 
 #endif // ESPNANOTOOL_MAIN_APP_WIFI_CONNECT_H_

@@ -9,7 +9,7 @@
 #include "custom.h"
 #include "events_init.h"
 #include "gui_guider.h"
-#include "littlefs_init.h"
+#include "littlefs_drv.h"
 #include "lvgl.h"
 #include "lvgl_driver/lv_port_indev.h"
 #include "lvgl_driver/lvgl_init.h"
@@ -20,18 +20,15 @@
 #include "esp_flash.h"
 #include "esp_littlefs.h"
 #include "esp_system.h"
+#include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "nvs_flash.h"
 #include "sdkconfig.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#define LED_4 12
-#define LED_5 13
-#define LOW_LEVEL 0
-#define HIGH_LEVEL 1
 
 lv_ui guider_ui;
 
@@ -61,52 +58,46 @@ void TaskPrintChipInfo(void *params) {
   );
 
   ESP_LOGI(ESP_LOG_TAG, "Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
-  ESP_LOGI(ESP_LOG_TAG, "Task delete.");
+  ESP_LOGI(ESP_LOG_TAG, "%s delete.", __func__);
   vTaskDelete(NULL);
 }
 
-void TaskWifiConnect() {
-  wifi_config_t config = {};
-  /**
-   * \brief 二进制读取WiFi配置
-   */
-  char wifi_config_path[] = LFS_WIFI_CONFIG_PATH;
-  FILE *wifi_config = fopen(LFS_WIFI_CONFIG_PATH, "rb");
-  do {
-    if (wifi_config == NULL) {
-      ESP_LOGE(ESP_LOG_TAG, "Error opening file: %s", wifi_config_path);
-      break;
-    }
-    size_t bytes_written = fread(&config, sizeof(char), sizeof(wifi_config_t), wifi_config);
-    if (bytes_written != sizeof(wifi_config_t)) {
-      ESP_LOGE(ESP_LOG_TAG, "Error reading from file: %s", wifi_config_path);
-      break;
-    }
-    WifiConnect(&config);
-  } while (false);
-  fclose(wifi_config);
-
-  vTaskDelete(NULL);
+/**
+ * \brief 初始化NVS分区
+ * \note 非易失性存储 (NVS) 库主要用于在 flash 中存储键值格式的数据。
+ */
+void InitNvsFlash() {
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_ERROR_CHECK(nvs_flash_erase());
+    ESP_ERROR_CHECK(nvs_flash_init());
+  }
+  ESP_LOGI(ESP_LOG_TAG, "NVS flash init successfully.");
 }
 
 void app_main() {
-  DrvLittleFs *little_fs = DrvLittleFsInit();
-  DrvLittleFsMount(little_fs, LFS_DEFAULT_ROOT_PATH, "littlefs");
+  // 初始化LittleFs文件系统
+  LittleFs *little_fs = LittleFsInit();
+  LittleFsMount(little_fs, LFS_DEFAULT_ROOT_PATH, "littlefs");
 
-  xTaskCreate(TaskWifiConnect, "TaskWifiConnect", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
+  // 初始化NVS
+  InitNvsFlash();
 
-  /**
-   * \brief Start LVGL.
-   */
+  // 尝试连接WiFi
+  TaskWifiConnect();
+
+  // 启动任务，输出芯片信息
+  xTaskCreate(TaskPrintChipInfo, "TaskPrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
+
+  // 初始化LVGL相关配置
   lvgl_init();
 
-  /*Create a GUI-Guider app */
+  // 创建GUI
   custom_init(&guider_ui);
   setup_ui(&guider_ui);
   events_init(&guider_ui);
 
-  xTaskCreate(TaskPrintChipInfo, "TaskPrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
-
+  // 循环处理LVGL事件
   while (true) {
     vTaskDelay(pdMS_TO_TICKS(10));
     lv_task_handler();
