@@ -5,6 +5,7 @@
 #include "wifi_connect.h"
 #include "common.h"
 #include "littlefs_drv.h"
+#include "wifi_init.h"
 
 #include "esp_event.h"
 #include "esp_system.h"
@@ -48,24 +49,14 @@ static void WifiEventHandler(void *arg, esp_event_base_t event_base, int32_t eve
 static void WifiInitSta() {
   wifi_dpp_evt_group = xEventGroupCreate();
 
-  ESP_ERROR_CHECK(esp_netif_init());
-
-  esp_err_t esp_err_code = esp_event_loop_create_default();
-  if (esp_err_code == ESP_OK) {
+  if (!WifiIsInited()) {
+    WifiInit();
     esp_netif_create_default_wifi_sta();
-  } else if (esp_err_code == ESP_ERR_INVALID_STATE) {
-    ESP_LOGW(ESP_LOG_TAG, "Default event loop has already been created.");
-  } else {
-    ESP_ERROR_CHECK(esp_err_code);
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   }
-
-  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-  ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE)); // 关闭WiFi省电以避免干扰 GPIO39 上的按键
 
   wifi_config_t wifi_config = {0};
   ESP_ERROR_CHECK(esp_wifi_get_config(WIFI_IF_STA, &wifi_config));
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
 
   esp_event_handler_instance_t instance_any_id;
@@ -96,14 +87,6 @@ static void WifiInitSta() {
   }
 
   vTaskDelete(NULL); // 删除任务
-}
-
-static void WifiDeinitSta() {
-  ESP_LOGI(ESP_LOG_TAG, "WiFi deiniting STA...");
-  ESP_ERROR_CHECK(esp_wifi_disconnect());
-  ESP_ERROR_CHECK(esp_wifi_stop());
-  ESP_ERROR_CHECK(esp_wifi_deinit());
-  ESP_LOGI(ESP_LOG_TAG, "WiFi deinit STA finished.");
 }
 
 void TaskWifiConnect() {

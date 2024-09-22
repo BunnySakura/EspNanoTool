@@ -5,6 +5,7 @@
 #include "wifi_dpp.h"
 #include "common.h"
 #include "littlefs_drv.h"
+#include "wifi_init.h"
 
 #include "esp_dpp.h"
 #include "esp_event.h"
@@ -141,21 +142,12 @@ static esp_err_t DppEnrolleeBootstrap() {
 static void DppEnrolleeInit() {
   wifi_dpp_evt_group = xEventGroupCreate();
 
-  ESP_ERROR_CHECK(esp_netif_init());
-
-  esp_err_t esp_err_code = esp_event_loop_create_default();
-  if (esp_err_code == ESP_OK) {
+  if (!WifiIsInited()) {
+    WifiInit();
     esp_netif_create_default_wifi_sta();
-  } else if (esp_err_code == ESP_ERR_INVALID_STATE) {
-    ESP_LOGW(ESP_LOG_TAG, "Default event loop has already been created.");
-  } else {
-    ESP_ERROR_CHECK(esp_err_code);
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   }
 
-  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-  ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE)); // 关闭WiFi省电以避免干扰 GPIO39 上的按键
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_supp_dpp_init(DppEnrolleeEvtHandler));
   ESP_ERROR_CHECK(DppEnrolleeBootstrap());
 

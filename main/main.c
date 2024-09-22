@@ -13,6 +13,7 @@
 #include "lvgl.h"
 #include "lvgl_driver/lv_port_indev.h"
 #include "lvgl_driver/lvgl_init.h"
+#include "uart_tcp_bridge.h"
 #include "wifi_connect.h"
 
 #include "driver/gpio.h"
@@ -75,6 +76,10 @@ void InitNvsFlash() {
   ESP_LOGI(ESP_LOG_TAG, "NVS flash init successfully.");
 }
 
+void TaskUartBridge() {
+  xTaskCreate(uart_bridge_task, __func__, 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
+}
+
 void app_main() {
   // 初始化LittleFs文件系统
   LittleFs *little_fs = LittleFsInit();
@@ -83,8 +88,14 @@ void app_main() {
   // 初始化NVS
   InitNvsFlash();
 
+  // 初始化默认事件循环
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+
   // 尝试连接WiFi
   TaskWifiConnect();
+
+  // 当获取到IP时启动串口桥
+  ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &TaskUartBridge, NULL));
 
   // 启动任务，输出芯片信息
   xTaskCreate(TaskPrintChipInfo, "TaskPrintChipInfo", 1024 * 4, NULL, tskIDLE_PRIORITY, NULL);
